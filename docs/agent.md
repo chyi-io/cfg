@@ -23,8 +23,9 @@ curl -fSL https://cfg.chyi.io/install.sh | bash
 The one-liner:
 
 1. Checks glibc and aborts cleanly if too old (needs ≥ 2.35).
-2. Downloads a single `chyi-cfg-agent` binary and verifies SHA256 + minisign (in
-   production).
+2. Downloads a single `chyi-cfg-agent` binary via `curl -fSL` (the cloud
+   302-redirects `/dist/...` to the matching GitHub Release asset — `curl`
+   follows it transparently) and verifies SHA256 + minisign (in production).
 3. Seeds `~/.config/chyi-cfg-agent/config.json` with the cloud URL so ad-hoc CLI
    calls (`doctor`, `status`, `pair`) work out of the box.
 4. Installs a hardened systemd **user** unit at
