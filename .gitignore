@@ -9,3 +9,9 @@
 _fresh/
 # npm dependencies
 node_modules/
+
+# Agent build output (200MB compiled binary — shipped via GitHub Releases)
+dist/
+
+# Dev-mode agent state created by scripts/dev_all.ts (per-developer, not shared)
+.dev-agent/

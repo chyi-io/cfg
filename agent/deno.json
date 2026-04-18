@@ -1,0 +1,15 @@
+{
+  "version": "0.1.5",
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi main.ts run",
+    "dev:watch": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi --watch main.ts run",
+    "dev:mock": "CHYI_CFG_FFI=mock deno run --allow-net --allow-env --allow-read --allow-write --allow-run main.ts run",
+    "dev:mock:watch": "CHYI_CFG_FFI=mock deno run --allow-net --allow-env --allow-read --allow-write --allow-run --watch main.ts run",
+    "start": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi main.ts run",
+    "doctor": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi main.ts doctor",
+    "test": "deno test --allow-read",
+    "test:hw": "CFG_HW=1 deno test --allow-net --allow-env --allow-read --allow-ffi --unstable-ffi",
+    "compile": "deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi --include drivers --output ../dist/chyi-cfg-agent main.ts"
+  },
+  "exclude": ["drivers/*/native"]
+}

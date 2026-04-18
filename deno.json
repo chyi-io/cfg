@@ -1,18 +1,22 @@
 {
-  "name": "cfg",
-  "description": "A web application for configuring various IoT devices",
-  "version": "1.0.0",
   "nodeModulesDir": "manual",
   "tasks": {
-    "dev": "vite",
+    "dev": "deno run -A --no-check scripts/dev_all.ts",
+    "dev:vite": "vite",
+    "dev:agent": "cd agent && deno task dev",
+    "dev:mock": "deno run -A --no-check scripts/dev_all.ts",
+    "dev:all": "deno run -A --no-check scripts/dev_all.ts",
     "build": "vite build",
     "start": "deno serve -A _fresh/server.js",
     "check": "deno fmt --check . && deno lint . && deno check",
     "test": "deno test -A",
-    "test:watch": "deno test -A --watch"
+    "test:watch": "deno test -A --watch",
+    "agent:compile": "cd agent && deno task compile"
   },
   "lint": { "rules": { "tags": ["fresh", "recommended"] } },
-  "exclude": ["**/_fresh/*"],
+  "exclude": ["**/_fresh/*", "dist"],
+  "unstable": ["kv"],
+  "workspace": ["./agent"],
   "imports": {
     "@/": "./",
     "fresh": "jsr:@fresh/core@^2.2.0",
@@ -28,7 +32,7 @@
     "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.16"
   },
   "compilerOptions": {
-    "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns"],
+    "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns", "deno.unstable"],
     "jsx": "precompile",
     "jsxImportSource": "preact",
     "jsxPrecompileSkipElements": [

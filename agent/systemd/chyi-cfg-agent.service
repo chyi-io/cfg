@@ -1,0 +1,36 @@
+[Unit]
+Description=chyi-cfg-agent (Chafon M200 live configuration)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=%h/.local/share/chyi-cfg-agent/chyi-cfg-agent run
+Restart=on-failure
+RestartSec=5
+
+# These env vars are filled by install.sh; this file is a documentation
+# template — not used directly. The installed unit lives at
+# ~/.config/systemd/user/chyi-cfg-agent.service.
+Environment=CHYI_CFG_URL=wss://cfg.chyi.io/api/agent/ws
+Environment=CHYI_CFG_AGENT_HOME=%h/.local/share/chyi-cfg-agent
+Environment=CHYI_CFG_LOG_LEVEL=info
+# CHYI_CFG_AGENT_LIB_PATH is intentionally NOT set: driver native libs are
+# bundled into the binary and auto-extracted on first run. Set this only as
+# an override to point at a custom-built libCFApi.so.
+
+# Hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/chyi-cfg-agent
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=no
+
+[Install]
+WantedBy=default.target

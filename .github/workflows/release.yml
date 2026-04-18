@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Compile chyi-cfg-agent (linux x86_64)
+        run: deno task agent:compile
+
+      - name: Tarball native libs
+        run: |
+          # native/ contains vendor-supplied libCFApi.so + libhid.so
+          # Make sure these are present locally before tagging.
+          if [[ -d agent/native ]]; then
+            tar -czf chyi-cfg-agent-native.tgz -C agent/native libCFApi.so libhid.so
+          else
+            echo "WARNING: agent/native missing; native.tgz will be empty"
+            tar -czf chyi-cfg-agent-native.tgz --files-from /dev/null
+          fi
+
+      - name: Compute SHA256s
+        run: |
+          sha256sum dist/chyi-cfg-agent chyi-cfg-agent-native.tgz > SHA256SUMS
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/chyi-cfg-agent
+            chyi-cfg-agent-native.tgz
+            SHA256SUMS
+
+      - name: Deploy cloud to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: cfg
+          entrypoint: _fresh/server.js
+          root: .
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}

@@ -101,14 +101,55 @@ export default function HomePage() {
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div class="container mx-auto px-4 py-12 max-w-5xl">
         {/* Hero */}
-        <div class="text-center mb-12">
+        <div class="text-center mb-10">
           <img src="/chyi-icon.png" alt="CHYI" class="w-16 h-16 mx-auto mb-5" />
           <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
             Chyi Hardware Configurator
           </h1>
           <p class="text-gray-500 text-lg max-w-xl mx-auto">
-            Upload, edit, and create configuration files for IoT hardware devices
+            Edit config files offline, or talk to a real device on your network in real time.
           </p>
+        </div>
+
+        {/* Mode picker */}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+          <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-gray-900">Edit a config file</h2>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">
+              Upload a Teltonika, Ruptela, or Chafon config file. Edit parameters in a structured UI. Download the result.
+            </p>
+            <p class="text-xs text-gray-400">No device required — works fully offline in your browser.</p>
+          </div>
+
+          <a
+            href="/live"
+            class="block rounded-2xl border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/40 p-5 shadow-sm hover:border-emerald-400 hover:shadow-md transition-all group"
+          >
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                Live device control
+              </h2>
+              <span class="ml-auto text-emerald-600 group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">
+              Read and write live device parameters over the network: work mode, remote server, whitelist, more.
+            </p>
+            <p class="text-xs text-emerald-700 font-medium">
+              Requires the chyi-cfg-agent installed on a Linux box on the device's LAN.
+            </p>
+          </a>
         </div>
 
         {error && (

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Install npm deps (Vite, Tailwind)
+        run: deno install --allow-scripts
+      - name: fmt + lint + typecheck
+        run: deno task check
+      - name: unit tests
+        run: deno test -A --unstable-kv
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Install npm deps
+        run: deno install --allow-scripts
+      - name: Build cloud
+        run: deno task build
+      - name: Run dev:mock stack
+        run: |
+          CFG_DEV_PORT=8001 deno task dev:mock > /tmp/cfg-dev.log 2>&1 &
+          sleep 18
+      - name: e2e smoke
+        run: CFG_DEV_PORT=8001 deno run -A --unstable-kv scripts/smoke_e2e.ts
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-log
+          path: /tmp/cfg-dev.log
