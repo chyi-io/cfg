@@ -1,0 +1,40 @@
+name: Deploy (cfg.chyi.io)
+
+# Deploys the cloud to Deno Deploy on every push to main. Tag-driven releases
+# still run release.yml (they additionally build + publish the agent binary
+# to a GitHub Release).
+#
+# Requires a repo secret DENO_DEPLOY_TOKEN. The Deno Deploy project name is
+# set via the `project` input below.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install npm deps
+        run: deno install --allow-scripts
+
+      - name: Build cloud
+        run: deno task build
+
+      - name: Deploy to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: cfg
+          entrypoint: _fresh/server.js
+          root: .
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
