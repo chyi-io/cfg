@@ -1,5 +1,6 @@
 import { define } from "../utils.ts";
 import { version } from "../shared/version.ts";
+import { getBinSha256 } from "../lib/live/release_sha.ts";
 
 const TEMPLATE = `#!/usr/bin/env bash
 # chyi-cfg-agent installer / updater
@@ -260,34 +261,46 @@ function rewriteDevHost(host: string): string {
   return host;
 }
 
+/** Placeholder SHA is recognized by install.sh's `verify_sha`, which skips
+ *  verification with a "development build" warning. We fall back to this only
+ *  if the release pipeline hasn't published yet (or KV is briefly unavailable). */
+const SHA_PLACEHOLDER = "SHA256_PLACEHOLDER_RELEASE_PIPELINE_FILLS_THIS";
+
 export const handler = define.handlers({
-  GET(ctx) {
+  async GET(ctx) {
     const rawHost = ctx.req.headers.get("host") ?? "cfg.chyi.io";
     const host = rewriteDevHost(rawHost);
     const scheme = detectScheme(ctx.req);
     const wsScheme = scheme === "https" ? "wss" : "ws";
-    // Release pipeline replaces these with real pinned URLs + hashes via
-    // scripts/update_install_sha.ts. For dev they remain placeholder strings.
+    const v = version();
+    const assetName = `chyi-cfg-agent-${v}-x86_64-linux`;
+
+    // Fetch the SHA256 that the release workflow published alongside the
+    // binary. KV-cached (24h on success, 5min on miss). If the release doesn't
+    // exist yet — e.g. during the minutes between a tag push and the workflow
+    // finishing — we fall through to the placeholder, which install.sh skips
+    // with a warning. Dev installs from localhost also hit the placeholder path
+    // since there's no GitHub release for a dev-only binary.
+    const binSha = host.includes("localhost") || host.includes("127.0.0.1")
+      ? null
+      : await getBinSha256(v, assetName);
+
     const body = TEMPLATE
-      .replaceAll("__CFG_VERSION__", version())
+      .replaceAll("__CFG_VERSION__", v)
       .replaceAll("__CFG_SCHEME__", scheme)
       .replaceAll("__CFG_WS_SCHEME__", wsScheme)
       .replaceAll("__CFG_HOST__", host)
-      .replaceAll("__AGENT_VERSION__", version())
-      .replaceAll(
-        "__BIN_URL__",
-        `${scheme}://${host}/dist/chyi-cfg-agent-${version()}-x86_64-linux`,
-      )
-      .replaceAll(
-        "__BIN_SHA256__",
-        "SHA256_PLACEHOLDER_RELEASE_PIPELINE_FILLS_THIS",
-      );
+      .replaceAll("__AGENT_VERSION__", v)
+      .replaceAll("__BIN_URL__", `${scheme}://${host}/dist/${assetName}`)
+      .replaceAll("__BIN_SHA256__", binSha ?? SHA_PLACEHOLDER);
 
     return new Response(body, {
       headers: {
         "Content-Type": "text/x-shellscript; charset=utf-8",
         "Content-Disposition": 'inline; filename="install.sh"',
-        "Cache-Control": "no-store",
+        // Cache for 5 minutes so the SHA propagates within a release cycle
+        // but we don't hammer GitHub on every refresh.
+        "Cache-Control": "public, max-age=300",
       },
     });
   },

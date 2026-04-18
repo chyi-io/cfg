@@ -1,0 +1,99 @@
+name: Release chyi-cfg-agent
+
+# Triggered by pushing a `v*` tag. Builds, tests, compiles the Linux x86_64
+# agent binary, computes its SHA256, and publishes a GitHub Release with the
+# binary + a SHA256SUMS manifest.
+#
+# Cloud deploys are independent — Deno Deploy auto-builds on every main
+# push. This workflow only handles the agent binary release.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (must match agent/deno.json version, e.g. v0.1.7)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # If triggered by workflow_dispatch, check out the requested tag.
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Resolve version + tag
+        id: v
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION="${TAG#v}"
+          FILE_VERSION=$(deno eval --quiet \
+            'const d = JSON.parse(Deno.readTextFileSync("agent/deno.json")); console.log(d.version);')
+          if [[ "$VERSION" != "$FILE_VERSION" ]]; then
+            echo "::error::Tag $TAG (version $VERSION) does not match agent/deno.json ($FILE_VERSION)."
+            echo "::error::Bump agent/deno.json and commit before tagging."
+            exit 1
+          fi
+          echo "tag=$TAG"           >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION"   >> "$GITHUB_OUTPUT"
+          echo "asset=chyi-cfg-agent-${VERSION}-x86_64-linux" >> "$GITHUB_OUTPUT"
+
+      - name: Install npm deps (Vite, Tailwind)
+        run: deno install --allow-scripts
+
+      - name: fmt + lint + typecheck
+        run: deno task check
+
+      - name: Unit tests
+        run: deno test -A --unstable-kv
+
+      - name: Build cloud (for e2e smoke)
+        run: deno task build
+
+      - name: e2e smoke (mock agent, real cloud)
+        run: |
+          CFG_DEV_PORT=8001 deno task dev:mock > /tmp/cfg-dev.log 2>&1 &
+          sleep 22
+          CFG_DEV_PORT=8001 deno run -A --unstable-kv scripts/smoke_e2e.ts
+
+      - name: Compile agent binary
+        run: deno task agent:compile
+
+      - name: Prepare release assets
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          ASSET="${{ steps.v.outputs.asset }}"
+          mv dist/chyi-cfg-agent "dist/${ASSET}"
+          (cd dist && sha256sum "${ASSET}" > SHA256SUMS)
+          echo "--- SHA256SUMS ---"
+          cat dist/SHA256SUMS
+          echo "--- asset ---"
+          ls -lh "dist/${ASSET}"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.v.outputs.tag }}" \
+            "dist/${{ steps.v.outputs.asset }}" \
+            dist/SHA256SUMS \
+            --title "chyi-cfg-agent ${{ steps.v.outputs.tag }} — Linux x86_64" \
+            --generate-notes
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfg-dev-log
+          path: /tmp/cfg-dev.log
+          if-no-files-found: ignore

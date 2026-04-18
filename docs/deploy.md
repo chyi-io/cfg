@@ -76,40 +76,61 @@ deploy. The binary belongs on GitHub Releases; the cloud redirects to it.
 
 ## Releasing a new version
 
-The cloud and the agent binary ship independently. The cloud auto-deploys on
-push; the binary is a manual `gh release` per version bump.
+The cloud and the agent binary ship independently:
+
+- **Cloud:** auto-deploys on every push to `main` (Deno Deploy).
+- **Agent binary:** built + published by `.github/workflows/release.yml` on
+  every `v*` tag push. The workflow runs `deno task check` + unit tests + the
+  e2e smoke against a mock agent, compiles the binary, computes its SHA256, and
+  publishes a GitHub Release titled `"chyi-cfg-agent v<ver> — Linux x86_64"`
+  with two assets: the binary + `SHA256SUMS`.
+
+### Cutting a release
 
 ```sh
 # 1. Bump the version (single source of truth — flows into CLI, install.sh,
 #    /api/live/health, and the GitHub tag derivation in routes/dist/[file].ts).
-$EDITOR agent/deno.json                # set "version": "0.1.6"
+$EDITOR agent/deno.json                # set "version": "0.1.7"
 git add agent/deno.json
-git commit -m "bump to 0.1.6"
-git push                               # Deno Deploy rebuilds + redeploys the cloud.
+git commit -m "bump to 0.1.7"
+git push                               # Deno Deploy rebuilds + redeploys.
 
-# 2. Build the agent binary locally.
-deno task agent:compile                # produces dist/chyi-cfg-agent
+# 2. Tag it. The workflow guards against tag ≠ agent/deno.json mismatch.
+git tag v0.1.7
+git push --tags                        # Triggers release.yml.
 
-# 3. Rename to the filename the installer URL expects, then publish a Release.
-#    routes/dist/[file].ts redirects `/dist/chyi-cfg-agent-<ver>-x86_64-linux`
-#    to `releases/download/v<ver>/chyi-cfg-agent-<ver>-x86_64-linux` — the
-#    uploaded asset's literal filename MUST match the URL suffix (gh's `#label`
-#    syntax only sets a display label, not the download filename).
-cp dist/chyi-cfg-agent dist/chyi-cfg-agent-0.1.6-x86_64-linux
-gh release create v0.1.6 \
-  dist/chyi-cfg-agent-0.1.6-x86_64-linux \
-  --title "v0.1.6" --generate-notes
-rm dist/chyi-cfg-agent-0.1.6-x86_64-linux
+# 3. ☕ Wait a few minutes. Done.
+#    Release: https://github.com/chyi-io/cfg/releases/tag/v0.1.7
 ```
 
-After step 3, every host running `chyi-cfg-agent update` (or re-running the
-install one-liner) pulls the new binary transparently — `curl -fSL` in
-`install.sh` follows the 302 from the cloud to the GitHub Release.
+### How the SHA flows into install.sh
 
-> **First time on a clean repo?** Until the very first GitHub Release exists,
-> `/dist/{file}` in production will redirect to a URL that 404s. `install.sh`
-> will report `HTTP 404` and abort. Create a Release for the current version
-> before announcing the URL.
+1. `release.yml` emits `dist/SHA256SUMS` with the line
+   `<64-hex>  chyi-cfg-agent-<ver>-x86_64-linux` and uploads it to the Release.
+2. On every request to `/install.sh`, `routes/install.sh.ts` calls
+   `getBinSha256(version, assetName)` from `lib/live/release_sha.ts`, which
+   fetches SHA256SUMS from the current version's GitHub Release (KV-cached: 24h
+   on success, 5min on miss so a too-early fetch self-heals).
+3. The real SHA is inlined as `BIN_SHA256=...` in the templated installer.
+4. The client's `install.sh` runs `verify_sha` — if the real SHA is present, it
+   enforces the checksum; if only the placeholder is there (dev hosts, or a
+   release that hasn't finished uploading yet), it warns and continues.
+
+### Updating clients
+
+After the Release is live, `chyi-cfg-agent update` (or `curl … | bash`) on any
+existing host sees `available: 0.1.7 > installed: 0.1.6`, stops the service,
+swaps the binary, restarts. No manual intervention.
+
+### Manual trigger
+
+If you need to rebuild a release without re-tagging (e.g. a transient CI
+failure), trigger the workflow from the GitHub Actions UI: **Actions → Release
+chyi-cfg-agent → Run workflow → tag: `v0.1.7`**.
+
+> **First release on a clean repo:** create the first Release _before_
+> announcing the install URL. Until it exists, `/dist/{file}` redirects to a 404
+> and `install.sh` aborts with "binary download failed".
 
 ## Single-region recommendation
 
