@@ -80,28 +80,35 @@ The cloud and the agent binary ship independently:
 
 - **Cloud:** auto-deploys on every push to `main` (Deno Deploy).
 - **Agent binary:** built + published by `.github/workflows/release.yml` on
-  every `v*` tag push. The workflow runs `deno task check` + unit tests + the
-  e2e smoke against a mock agent, compiles the binary, computes its SHA256, and
-  publishes a GitHub Release titled `"chyi-cfg-agent v<ver> — Linux x86_64"`
-  with two assets: the binary + `SHA256SUMS`.
+  every push to `main`. The workflow reads the version in `agent/deno.json` and
+  checks whether `v<version>` already exists as a GitHub Release:
+  - **If yes** (docs tweak, refactor, CI-only change): the workflow exits
+    immediately. No build, no duplicate release, no noise.
+  - **If no** (version bumped): runs `deno task check` + unit tests + the e2e
+    smoke against a mock agent, compiles the Linux x86_64 binary, computes
+    SHA256, creates the `v<version>` tag at the built commit, and publishes a
+    GitHub Release titled `"chyi-cfg-agent v<ver> —
+    Linux x86_64"` with two
+    assets: the binary + `SHA256SUMS`.
 
 ### Cutting a release
 
+Bump once, push once:
+
 ```sh
-# 1. Bump the version (single source of truth — flows into CLI, install.sh,
-#    /api/live/health, and the GitHub tag derivation in routes/dist/[file].ts).
-$EDITOR agent/deno.json                # set "version": "0.1.7"
+$EDITOR agent/deno.json                # "version": "0.1.7"
 git add agent/deno.json
 git commit -m "bump to 0.1.7"
-git push                               # Deno Deploy rebuilds + redeploys.
-
-# 2. Tag it. The workflow guards against tag ≠ agent/deno.json mismatch.
-git tag v0.1.7
-git push --tags                        # Triggers release.yml.
-
-# 3. ☕ Wait a few minutes. Done.
-#    Release: https://github.com/chyi-io/cfg/releases/tag/v0.1.7
+git push                               # triggers both deploys:
+                                       #   1. Deno Deploy rebuilds cloud
+                                       #   2. release.yml builds + publishes v0.1.7
+# ☕ Wait a few minutes.
+# Release: https://github.com/chyi-io/cfg/releases/tag/v0.1.7
 ```
+
+No tags to push by hand — the workflow creates the tag itself pointed at the
+release commit. Subsequent pushes (docs, fixes) don't trigger new releases
+because the `v0.1.7` tag now exists.
 
 ### How the SHA flows into install.sh
 
@@ -122,15 +129,27 @@ After the Release is live, `chyi-cfg-agent update` (or `curl … | bash`) on any
 existing host sees `available: 0.1.7 > installed: 0.1.6`, stops the service,
 swaps the binary, restarts. No manual intervention.
 
-### Manual trigger
+### Manual trigger / retry
 
-If you need to rebuild a release without re-tagging (e.g. a transient CI
-failure), trigger the workflow from the GitHub Actions UI: **Actions → Release
-chyi-cfg-agent → Run workflow → tag: `v0.1.7`**.
+If the workflow needs to run without a version bump (e.g. a transient CI
+failure), trigger it from the GitHub Actions UI: **Actions → Release
+chyi-cfg-agent → Run workflow**. It will re-evaluate the skip gate — to force a
+rebuild, delete the existing Release (and its tag) first.
 
-> **First release on a clean repo:** create the first Release _before_
-> announcing the install URL. Until it exists, `/dist/{file}` redirects to a 404
-> and `install.sh` aborts with "binary download failed".
+### Force-re-cutting an existing version
+
+The workflow intentionally refuses to re-publish a version that already has a
+Release — binary provenance matters. If you need to rebuild `v0.1.7` (e.g. you
+found a bad upload), delete the Release + tag first:
+
+```sh
+gh release delete v0.1.7 --cleanup-tag --yes
+git push                       # next push re-runs the workflow, publishes v0.1.7
+```
+
+> **First release on a clean repo:** pushing the very first version bump
+> triggers the workflow and creates the first Release. Until it succeeds,
+> `/dist/{file}` in production redirects to a 404 and `install.sh` aborts.
 
 ## Single-region recommendation
 
