@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import AgentStatusBanner from "./AgentStatusBanner.tsx";
 import FeatureNav from "../../components/live/FeatureNav.tsx";
-import { loadActiveSession, loadStoredToken, useAgentSocket } from "./useAgentSocket.ts";
+import {
+  loadActiveSession,
+  loadStoredToken,
+  useAgentSocket,
+} from "./useAgentSocket.ts";
 import Toast from "../../components/live/Toast.tsx";
 
 interface Props {
@@ -56,7 +60,10 @@ export default function WhitelistEditor({ agentId }: Props) {
     return draft.filter((c) => c.includes(q));
   }, [draft, search]);
 
-  const diff = useMemo(() => computeDiff(current ?? [], draft), [current, draft]);
+  const diff = useMemo(() => computeDiff(current ?? [], draft), [
+    current,
+    draft,
+  ]);
 
   if (!tokenLoaded) return null;
   if (!token) return <NotPaired agentId={agentId} />;
@@ -67,7 +74,11 @@ export default function WhitelistEditor({ agentId }: Props) {
     const text = await file.text();
     const { cards, errors } = parseCsvCards(text);
     if (errors.length > 0) {
-      setErr(`${errors.length} invalid row(s): ${errors.slice(0, 3).join("; ")}${errors.length > 3 ? "..." : ""}`);
+      setErr(
+        `${errors.length} invalid row(s): ${errors.slice(0, 3).join("; ")}${
+          errors.length > 3 ? "..." : ""
+        }`,
+      );
     } else {
       setErr("");
     }
@@ -82,7 +93,9 @@ export default function WhitelistEditor({ agentId }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `whitelist-${agentId.substring(0, 8)}-${new Date().toISOString().substring(0, 10)}.csv`;
+    a.download = `whitelist-${agentId.substring(0, 8)}-${
+      new Date().toISOString().substring(0, 10)
+    }.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -107,17 +120,34 @@ export default function WhitelistEditor({ agentId }: Props) {
 
   return (
     <div class="space-y-4">
-      <AgentStatusBanner state={socket.state} agentConnected={socket.agentConnected} agentId={agentId} />
+      <AgentStatusBanner
+        state={socket.state}
+        agentConnected={socket.agentConnected}
+        agentId={agentId}
+      />
 
-      <FeatureNav agentId={agentId} active="whitelist" capabilities={session?.capabilities} />
+      <FeatureNav
+        agentId={agentId}
+        active="whitelist"
+        capabilities={session?.capabilities}
+      />
 
       {err && <Toast kind="error" message={err} onDismiss={() => setErr("")} />}
-      {okMsg && <Toast kind="success" message={okMsg} onDismiss={() => setOkMsg("")} />}
+      {okMsg && (
+        <Toast
+          kind="success"
+          message={okMsg}
+          onDismiss={() => setOkMsg("")}
+        />
+      )}
 
       <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
         <div class="flex items-center justify-between">
           <h2 class="font-semibold text-gray-900">
-            Whitelist <span class="text-gray-400 font-normal">({draft.length} cards)</span>
+            Whitelist{" "}
+            <span class="text-gray-400 font-normal">
+              ({draft.length} cards)
+            </span>
           </h2>
           <div class="flex items-center gap-2">
             <button
@@ -152,7 +182,9 @@ export default function WhitelistEditor({ agentId }: Props) {
         {current === null
           ? (
             <p class="text-sm text-gray-500">
-              {socket.agentConnected ? "Loading..." : "Open the connection from the device-info page first."}
+              {socket.agentConnected
+                ? "Loading..."
+                : "Open the connection from the device-info page first."}
             </p>
           )
           : (
@@ -161,7 +193,8 @@ export default function WhitelistEditor({ agentId }: Props) {
                 type="search"
                 placeholder="Search EPC..."
                 value={search}
-                onInput={(e) => setSearch((e.target as HTMLInputElement).value.toUpperCase())}
+                onInput={(e) =>
+                  setSearch((e.target as HTMLInputElement).value.toUpperCase())}
                 class="w-full rounded-md border border-gray-200 px-2 py-1.5 font-mono text-xs"
               />
 
@@ -169,9 +202,15 @@ export default function WhitelistEditor({ agentId }: Props) {
                 <table class="min-w-full text-xs">
                   <thead class="bg-gray-50 sticky top-0">
                     <tr>
-                      <th class="text-left px-2 py-1 font-medium text-gray-500 w-12">#</th>
-                      <th class="text-left px-2 py-1 font-medium text-gray-500">EPC</th>
-                      <th class="text-right px-2 py-1 font-medium text-gray-500 w-16">bytes</th>
+                      <th class="text-left px-2 py-1 font-medium text-gray-500 w-12">
+                        #
+                      </th>
+                      <th class="text-left px-2 py-1 font-medium text-gray-500">
+                        EPC
+                      </th>
+                      <th class="text-right px-2 py-1 font-medium text-gray-500 w-16">
+                        bytes
+                      </th>
                       <th class="w-8"></th>
                     </tr>
                   </thead>
@@ -179,20 +218,33 @@ export default function WhitelistEditor({ agentId }: Props) {
                     {filtered.length === 0
                       ? (
                         <tr>
-                          <td colSpan={4} class="text-center text-gray-400 py-6">
-                            {draft.length === 0 ? "No cards." : "No cards match search."}
+                          <td
+                            colSpan={4}
+                            class="text-center text-gray-400 py-6"
+                          >
+                            {draft.length === 0
+                              ? "No cards."
+                              : "No cards match search."}
                           </td>
                         </tr>
                       )
                       : filtered.map((c) => (
-                        <tr key={c} class="border-t border-gray-100 hover:bg-gray-50">
-                          <td class="px-2 py-1 text-gray-400">{draft.indexOf(c) + 1}</td>
+                        <tr
+                          key={c}
+                          class="border-t border-gray-100 hover:bg-gray-50"
+                        >
+                          <td class="px-2 py-1 text-gray-400">
+                            {draft.indexOf(c) + 1}
+                          </td>
                           <td class="px-2 py-1 font-mono text-gray-900">{c}</td>
-                          <td class="px-2 py-1 text-right text-gray-500">{c.length / 2}</td>
+                          <td class="px-2 py-1 text-right text-gray-500">
+                            {c.length / 2}
+                          </td>
                           <td>
                             <button
                               type="button"
-                              onClick={() => setDraft(draft.filter((d) => d !== c))}
+                              onClick={() =>
+                                setDraft(draft.filter((d) => d !== c))}
                               class="text-gray-400 hover:text-red-600 px-1"
                               aria-label="remove"
                               title="Remove"
@@ -290,8 +342,9 @@ function ConfirmReplace(
       <div class="w-full max-w-md rounded-xl bg-white p-5 shadow-xl space-y-3">
         <h3 class="text-lg font-bold text-gray-900">Replace whitelist?</h3>
         <p class="text-sm text-gray-700">
-          This <strong>replaces all cards</strong> on the reader with the local list.
-          The reader is briefly switched to response mode during the upload, then restored.
+          This <strong>replaces all cards</strong>{" "}
+          on the reader with the local list. The reader is briefly switched to
+          response mode during the upload, then restored.
         </p>
         <div class="rounded-md border border-gray-200 bg-gray-50 p-3 text-xs space-y-1">
           <div class="text-emerald-700">+ {diff.added.length} added</div>
@@ -303,7 +356,11 @@ function ConfirmReplace(
             <summary class="cursor-pointer text-gray-600">Added EPCs</summary>
             <ul class="mt-1 max-h-32 overflow-y-auto font-mono text-gray-800 space-y-0.5">
               {diff.added.slice(0, 50).map((c) => <li key={c}>+ {c}</li>)}
-              {diff.added.length > 50 && <li class="text-gray-400">... +{diff.added.length - 50} more</li>}
+              {diff.added.length > 50 && (
+                <li class="text-gray-400">
+                  ... +{diff.added.length - 50} more
+                </li>
+              )}
             </ul>
           </details>
         )}
@@ -312,7 +369,11 @@ function ConfirmReplace(
             <summary class="cursor-pointer text-gray-600">Removed EPCs</summary>
             <ul class="mt-1 max-h-32 overflow-y-auto font-mono text-gray-800 space-y-0.5">
               {diff.removed.slice(0, 50).map((c) => <li key={c}>− {c}</li>)}
-              {diff.removed.length > 50 && <li class="text-gray-400">... −{diff.removed.length - 50} more</li>}
+              {diff.removed.length > 50 && (
+                <li class="text-gray-400">
+                  ... −{diff.removed.length - 50} more
+                </li>
+              )}
             </ul>
           </details>
         )}
@@ -372,14 +433,16 @@ function parseCsvCards(text: string): { cards: string[]; errors: string[] } {
 function NotPaired({ agentId }: { agentId: string }) {
   return (
     <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      This browser is not paired with agent <span class="font-mono">{agentId.substring(0, 8)}</span>.
-      {" "}
+      This browser is not paired with agent{" "}
+      <span class="font-mono">{agentId.substring(0, 8)}</span>.{" "}
       <a href="/live" class="underline font-semibold">Pair now →</a>
     </div>
   );
 }
 
 function describe(e: unknown): string {
-  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  if (e && typeof e === "object" && "message" in e) {
+    return String((e as { message: unknown }).message);
+  }
   return String(e);
 }

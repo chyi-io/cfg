@@ -32,13 +32,30 @@
     "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.16"
   },
   "compilerOptions": {
-    "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns", "deno.unstable"],
+    "lib": [
+      "dom",
+      "dom.asynciterable",
+      "dom.iterable",
+      "deno.ns",
+      "deno.unstable"
+    ],
     "jsx": "precompile",
     "jsxImportSource": "preact",
     "jsxPrecompileSkipElements": [
-      "a", "img", "source", "body", "html", "head",
-      "title", "meta", "script", "link", "style",
-      "base", "noscript", "template"
+      "a",
+      "img",
+      "source",
+      "body",
+      "html",
+      "head",
+      "title",
+      "meta",
+      "script",
+      "link",
+      "style",
+      "base",
+      "noscript",
+      "template"
     ],
     "types": ["vite/client"]
   }

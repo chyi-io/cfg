@@ -26,7 +26,8 @@ const CategoryPanel = ({
       <div>
         <h2 class="text-xl font-bold text-gray-800">{category.label}</h2>
         <p class="text-xs text-gray-500">
-          {filteredParams.length} parameter{filteredParams.length !== 1 ? "s" : ""}
+          {filteredParams.length}{" "}
+          parameter{filteredParams.length !== 1 ? "s" : ""}
           {category.deviceOnly && (
             <span class="ml-1 px-1.5 py-0.5 rounded bg-red-50 text-red-600 text-[10px] font-bold uppercase">
               {category.deviceOnly} only
@@ -36,26 +37,28 @@ const CategoryPanel = ({
       </div>
     </div>
 
-    {filteredParams.length === 0 ? (
-      <p class="text-sm text-gray-400 italic">
-        {searchQuery
-          ? "No parameters match your search."
-          : "No parameters in this category."}
-      </p>
-    ) : (
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        {filteredParams.map((paramId) => (
-          <ParamField
-            key={paramId}
-            paramId={paramId}
-            meta={getMeta(paramId)}
-            value={config[paramId] ?? ""}
-            error={validationErrors[paramId]}
-            onValueChange={onValueChange}
-          />
-        ))}
-      </div>
-    )}
+    {filteredParams.length === 0
+      ? (
+        <p class="text-sm text-gray-400 italic">
+          {searchQuery
+            ? "No parameters match your search."
+            : "No parameters in this category."}
+        </p>
+      )
+      : (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          {filteredParams.map((paramId) => (
+            <ParamField
+              key={paramId}
+              paramId={paramId}
+              meta={getMeta(paramId)}
+              value={config[paramId] ?? ""}
+              error={validationErrors[paramId]}
+              onValueChange={onValueChange}
+            />
+          ))}
+        </div>
+      )}
   </div>
 );
 

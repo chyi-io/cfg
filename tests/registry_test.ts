@@ -1,12 +1,15 @@
-import { assertEquals, assertExists } from "https://deno.land/std@0.216.0/assert/mod.ts";
 import {
-  registerVendor,
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.216.0/assert/mod.ts";
+import {
+  _clearVendors,
+  buildStructuredConfig,
+  detectVendorFromFile,
+  getDeviceDefinition,
   getVendor,
   listVendors,
-  getDeviceDefinition,
-  detectVendorFromFile,
-  buildStructuredConfig,
-  _clearVendors,
+  registerVendor,
 } from "../lib/registry.ts";
 import { teltonikaPlugin } from "../vendors/teltonika/mod.ts";
 import { ruptelaPlugin } from "../vendors/ruptela/mod.ts";
@@ -123,7 +126,12 @@ Deno.test("detectVendorFromFile — detects Chafon .ini", async () => {
 Deno.test("buildStructuredConfig — handles non-numeric keys (Chafon)", () => {
   setup();
   const vendor = getVendor("chafon")!;
-  const config = { "Baud": "9600", "Power": "33", "Ant1": "True", "IsEnable": "True" };
+  const config = {
+    "Baud": "9600",
+    "Power": "33",
+    "Ant1": "True",
+    "IsEnable": "True",
+  };
   const structured = buildStructuredConfig(vendor, config);
 
   assertExists(structured["basic"]);

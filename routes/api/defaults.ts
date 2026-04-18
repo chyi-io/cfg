@@ -1,5 +1,12 @@
-import { getVendor, getDeviceDefinition, buildStructuredConfig } from "../../lib/registry.ts";
-import { serializeAllParamMetas, buildFullVendorConfig } from "../../lib/validation.ts";
+import {
+  buildStructuredConfig,
+  getDeviceDefinition,
+  getVendor,
+} from "../../lib/registry.ts";
+import {
+  buildFullVendorConfig,
+  serializeAllParamMetas,
+} from "../../lib/validation.ts";
 import { jsonResponse as json } from "../../lib/http.ts";
 import { define } from "../../utils.ts";
 
@@ -19,7 +26,9 @@ export const handler = define.handlers({
       return json({ error: `Unknown device: ${deviceId}` }, 400);
     }
 
-    const config = buildFullVendorConfig(vendor, deviceDef, { ...deviceDef.defaults });
+    const config = buildFullVendorConfig(vendor, deviceDef, {
+      ...deviceDef.defaults,
+    });
     const structured = buildStructuredConfig(vendor, config);
     const paramMetas = serializeAllParamMetas(vendor, deviceDef, config);
 

@@ -30,7 +30,10 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
 function base64urlEncode(bytes: Uint8Array): string {
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  return btoa(bin).replaceAll("+", "-").replaceAll("/", "_").replaceAll(
+    "=",
+    "",
+  );
 }
 
 function base64urlDecode(s: string): Uint8Array<ArrayBuffer> {
@@ -48,10 +51,15 @@ export interface BrowserTokenPayload {
   iat: number;
 }
 
-export async function signBrowserToken(payload: BrowserTokenPayload, secret: string): Promise<string> {
+export async function signBrowserToken(
+  payload: BrowserTokenPayload,
+  secret: string,
+): Promise<string> {
   const body = base64urlEncode(enc.encode(JSON.stringify(payload)));
   const key = await hmacKey(secret);
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(body)));
+  const sig = new Uint8Array(
+    await crypto.subtle.sign("HMAC", key, enc.encode(body)),
+  );
   return `${body}.${base64urlEncode(sig)}`;
 }
 
@@ -66,11 +74,20 @@ export async function verifyBrowserToken(
   const sig = token.substring(dot + 1);
   const key = await hmacKey(secret);
   const sigBytes = base64urlDecode(sig);
-  const ok = await crypto.subtle.verify("HMAC", key, sigBytes, enc.encode(body));
+  const ok = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    sigBytes,
+    enc.encode(body),
+  );
   if (!ok) return null;
   try {
-    const payload = JSON.parse(new TextDecoder().decode(base64urlDecode(body))) as BrowserTokenPayload;
-    if (typeof payload.agentId !== "string" || typeof payload.exp !== "number") return null;
+    const payload = JSON.parse(
+      new TextDecoder().decode(base64urlDecode(body)),
+    ) as BrowserTokenPayload;
+    if (
+      typeof payload.agentId !== "string" || typeof payload.exp !== "number"
+    ) return null;
     if (now > payload.exp) return null;
     return payload;
   } catch {
@@ -78,9 +95,14 @@ export async function verifyBrowserToken(
   }
 }
 
-export async function hmacHex(secret: string, message: string): Promise<string> {
+export async function hmacHex(
+  secret: string,
+  message: string,
+): Promise<string> {
   const key = await hmacKey(secret);
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(message)));
+  const sig = new Uint8Array(
+    await crypto.subtle.sign("HMAC", key, enc.encode(message)),
+  );
   let s = "";
   for (const b of sig) s += b.toString(16).padStart(2, "0");
   return s;

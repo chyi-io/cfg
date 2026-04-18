@@ -1,8 +1,21 @@
 import { define } from "../../../utils.ts";
-import { decode, encode, PROTOCOL_VERSION, type Envelope } from "../../../shared/protocol.ts";
+import {
+  decode,
+  encode,
+  type Envelope,
+  PROTOCOL_VERSION,
+} from "../../../shared/protocol.ts";
 import { generatePairCode, hmacHex } from "../../../shared/pair.ts";
-import { getAgentKey, putAgentKey, putPairCode } from "../../../lib/live/pair_store.ts";
-import { registerAgent, sendToBrowsers, unregisterAgent } from "../../../lib/live/relay.ts";
+import {
+  getAgentKey,
+  putAgentKey,
+  putPairCode,
+} from "../../../lib/live/pair_store.ts";
+import {
+  registerAgent,
+  sendToBrowsers,
+  unregisterAgent,
+} from "../../../lib/live/relay.ts";
 
 const PAIR_CODE_TTL_MS = 10 * 60 * 1000;
 
@@ -35,7 +48,8 @@ export const handler = define.handlers({
               code: 0xfffffe06,
               statusName: "STAT_PROTO_VERSION",
               httpStatus: 426,
-              message: `Protocol version mismatch: agent=${env.protocolVersion}, server=${PROTOCOL_VERSION}. Update chyi-cfg-agent.`,
+              message:
+                `Protocol version mismatch: agent=${env.protocolVersion}, server=${PROTOCOL_VERSION}. Update chyi-cfg-agent.`,
             },
           }));
           socket.close(1000, "version");

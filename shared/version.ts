@@ -11,7 +11,8 @@
 
 import agentDeno from "../agent/deno.json" with { type: "json" };
 
-export const VERSION: string = (agentDeno as { version?: string }).version ?? "0.0.0";
+export const VERSION: string = (agentDeno as { version?: string }).version ??
+  "0.0.0";
 export const PROTOCOL_VERSION = 1;
 
 export function version(): string {

@@ -6,7 +6,9 @@ export default function Error404() {
         <p class="my-4 text-gray-600">
           The page you were looking for doesn't exist.
         </p>
-        <a href="/" class="underline text-blue-600 hover:text-blue-800">Go back home</a>
+        <a href="/" class="underline text-blue-600 hover:text-blue-800">
+          Go back home
+        </a>
       </div>
     </div>
   );

@@ -14,9 +14,8 @@ const CHAFON_SECTIONS = new Set(["Basic", "Antenna", "Advanced", "Remote"]);
  * @param buffer - Raw file bytes.
  * @returns Parsed config or error.
  */
-export const parseChafonConfig = async (
-  buffer: Uint8Array,
-): Promise<ParseResult> => {
+// Sync body. See ruptela/parser.ts for the rationale behind the split.
+const parseChafonConfigSync = (buffer: Uint8Array): ParseResult => {
   try {
     const content = new TextDecoder().decode(buffer);
     const lines = content.split(/\r?\n/);
@@ -35,7 +34,10 @@ export const parseChafonConfig = async (
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("[") || trimmed.startsWith("#") || trimmed.startsWith(";")) {
+      if (
+        !trimmed || trimmed.startsWith("[") || trimmed.startsWith("#") ||
+        trimmed.startsWith(";")
+      ) {
         continue;
       }
       const eqIdx = trimmed.indexOf("=");
@@ -59,27 +61,61 @@ export const parseChafonConfig = async (
   }
 };
 
+export const parseChafonConfig = (
+  buffer: Uint8Array,
+): Promise<ParseResult> => Promise.resolve(parseChafonConfigSync(buffer));
+
 /**
  * Section assignment for each known Chafon parameter key.
  * Used to reconstruct the INI file with correct [Section] headers.
  */
 const KEY_SECTION: Record<string, string> = {
-  Baud: "Basic", Power: "Basic", Addr: "Basic", Region: "Basic",
-  StartFreq: "Basic", EndFreq: "Basic", IsPointFreq: "Basic",
-  Workmode: "Basic", Port: "Basic", Area: "Basic", Startaddr: "Basic",
-  DataLen: "Basic", Filtertime: "Basic", Triggletime: "Basic",
-  Q: "Basic", Session: "Basic", WiegandMode: "Basic",
-  WieggendOutMode: "Basic", "IntenelTime(*100mS)": "Basic", IsBuzzer: "Basic",
+  Baud: "Basic",
+  Power: "Basic",
+  Addr: "Basic",
+  Region: "Basic",
+  StartFreq: "Basic",
+  EndFreq: "Basic",
+  IsPointFreq: "Basic",
+  Workmode: "Basic",
+  Port: "Basic",
+  Area: "Basic",
+  Startaddr: "Basic",
+  DataLen: "Basic",
+  Filtertime: "Basic",
+  Triggletime: "Basic",
+  Q: "Basic",
+  Session: "Basic",
+  WiegandMode: "Basic",
+  WieggendOutMode: "Basic",
+  "IntenelTime(*100mS)": "Basic",
+  IsBuzzer: "Basic",
 
-  Ant1: "Antenna", AntPower1: "Antenna", Ant2: "Antenna", AntPower2: "Antenna",
-  Ant3: "Antenna", AntPower3: "Antenna", Ant4: "Antenna", AntPower4: "Antenna",
+  Ant1: "Antenna",
+  AntPower1: "Antenna",
+  Ant2: "Antenna",
+  AntPower2: "Antenna",
+  Ant3: "Antenna",
+  AntPower3: "Antenna",
+  Ant4: "Antenna",
+  AntPower4: "Antenna",
 
-  PasswordEnable: "Advanced", PasswordHEX: "Advanced", MaskEnabled: "Advanced",
-  StartAddr: "Advanced", MaskLen: "Advanced", MaskData: "Advanced",
-  Condition: "Advanced", ConditionIndex: "Advanced", ProtocolEnable: "Advanced",
-  ProrocolType: "Advanced", ProrocolTypeIndex: "Advanced", CacheEnable: "Advanced",
+  PasswordEnable: "Advanced",
+  PasswordHEX: "Advanced",
+  MaskEnabled: "Advanced",
+  StartAddr: "Advanced",
+  MaskLen: "Advanced",
+  MaskData: "Advanced",
+  Condition: "Advanced",
+  ConditionIndex: "Advanced",
+  ProtocolEnable: "Advanced",
+  ProrocolType: "Advanced",
+  ProrocolTypeIndex: "Advanced",
+  CacheEnable: "Advanced",
 
-  IsEnable: "Remote", RemoteIP: "Remote", RemotePort: "Remote",
+  IsEnable: "Remote",
+  RemoteIP: "Remote",
+  RemotePort: "Remote",
   HeartbeatTime: "Remote",
 };
 
@@ -89,9 +125,9 @@ const KEY_SECTION: Record<string, string> = {
  * @param config - Flat key-value config map.
  * @returns INI file bytes.
  */
-export const generateChafonConfig = async (
+const generateChafonConfigSync = (
   config: Record<string, string>,
-): Promise<Uint8Array> => {
+): Uint8Array => {
   // Group keys by section
   const sections: Record<string, [string, string][]> = {
     Basic: [],
@@ -121,3 +157,7 @@ export const generateChafonConfig = async (
   lines.push("");
   return new TextEncoder().encode(lines.join("\n"));
 };
+
+export const generateChafonConfig = (
+  config: Record<string, string>,
+): Promise<Uint8Array> => Promise.resolve(generateChafonConfigSync(config));

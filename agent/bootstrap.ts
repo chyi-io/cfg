@@ -40,20 +40,18 @@ export async function maybeReexec(): Promise<void> {
   const exeBase = exe.substring(exe.lastIndexOf("/") + 1).toLowerCase();
   const isCompiledBinary = exeBase !== "deno" && exeBase !== "deno.exe";
 
-  const args = isCompiledBinary
-    ? Deno.args
-    : [
-      "run",
-      "--allow-net",
-      "--allow-env",
-      "--allow-read",
-      "--allow-write",
-      "--allow-ffi",
-      "--allow-run",
-      "--unstable-ffi",
-      Deno.mainModule,
-      ...Deno.args,
-    ];
+  const args = isCompiledBinary ? Deno.args : [
+    "run",
+    "--allow-net",
+    "--allow-env",
+    "--allow-read",
+    "--allow-write",
+    "--allow-ffi",
+    "--allow-run",
+    "--unstable-ffi",
+    Deno.mainModule,
+    ...Deno.args,
+  ];
 
   const child = new Deno.Command(exe, {
     args,

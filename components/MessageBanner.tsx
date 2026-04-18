@@ -4,7 +4,9 @@ interface MessageBannerProps {
   onDismiss: () => void;
 }
 
-const MessageBanner = ({ message, messageType, onDismiss }: MessageBannerProps) => {
+const MessageBanner = (
+  { message, messageType, onDismiss }: MessageBannerProps,
+) => {
   if (!message) return null;
 
   return (
@@ -17,7 +19,11 @@ const MessageBanner = ({ message, messageType, onDismiss }: MessageBannerProps) 
     >
       <span>{messageType === "success" ? "\u2705" : "\u274C"}</span>
       <span>{message}</span>
-      <button type="button" onClick={onDismiss} class="ml-auto text-xs underline">
+      <button
+        type="button"
+        onClick={onDismiss}
+        class="ml-auto text-xs underline"
+      >
         Dismiss
       </button>
     </div>

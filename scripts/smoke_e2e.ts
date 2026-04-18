@@ -7,7 +7,12 @@
 //         whitelist.set -> whitelist.get -> connection.close.
 // Prints PASS/FAIL per step and exits non-zero on any failure.
 
-import type { CommandName, CommandPayloads, CommandResponses, ResEnvelope } from "../shared/protocol.ts";
+import type {
+  CommandName,
+  CommandPayloads,
+  CommandResponses,
+  ResEnvelope,
+} from "../shared/protocol.ts";
 
 const port = Number.parseInt(Deno.env.get("CFG_DEV_PORT") ?? "8001", 10);
 const base = `http://localhost:${port}`;
@@ -44,15 +49,21 @@ async function main() {
   const { token, agentId } = await pair(code);
   step("paired", true, `agent ${agentId.substring(0, 8)}`);
 
-  const ws = new WebSocket(`ws://localhost:${port}/api/live/ws?token=${encodeURIComponent(token)}`);
+  const ws = new WebSocket(
+    `ws://localhost:${port}/api/live/ws?token=${encodeURIComponent(token)}`,
+  );
   await new Promise<void>((resolve, reject) => {
     ws.onopen = () => resolve();
-    ws.onerror = (e) => reject(new Error(`ws.error: ${(e as ErrorEvent).message ?? e.type}`));
+    ws.onerror = (e) =>
+      reject(new Error(`ws.error: ${(e as ErrorEvent).message ?? e.type}`));
     setTimeout(() => reject(new Error("ws.connect timeout")), 5000);
   });
   step("browser WS open", true);
 
-  const pending = new Map<string, { res: (v: unknown) => void; rej: (e: unknown) => void }>();
+  const pending = new Map<
+    string,
+    { res: (v: unknown) => void; rej: (e: unknown) => void }
+  >();
   ws.onmessage = (ev) => {
     const env = JSON.parse(ev.data as string) as ResEnvelope;
     if (env.kind !== "res") return;
@@ -77,7 +88,11 @@ async function main() {
     });
 
   const drivers = await req("drivers.list", {});
-  step("drivers.list", drivers.drivers.length > 0, drivers.drivers.map((d) => d.id).join(","));
+  step(
+    "drivers.list",
+    drivers.drivers.length > 0,
+    drivers.drivers.map((d) => d.id).join(","),
+  );
 
   const open = await req("connection.open", {
     driver: "chafon-m200",
@@ -94,19 +109,28 @@ async function main() {
   const wm = await req("workmode.get", {});
   step("workmode round-trip", wm.workMode === 2, `wm=${wm.workMode}`);
 
-  await req("remotenet.set", { enabled: true, ip: "10.0.0.5", port: 7000, heartTime: 30 });
+  await req("remotenet.set", {
+    enabled: true,
+    ip: "10.0.0.5",
+    port: 7000,
+    heartTime: 30,
+  });
   const rn = await req("remotenet.get", {});
   step(
     "remotenet round-trip",
-    rn.enabled && rn.ip === "10.0.0.5" && rn.port === 7000 && rn.heartTime === 30,
+    rn.enabled && rn.ip === "10.0.0.5" && rn.port === 7000 &&
+      rn.heartTime === 30,
     `${rn.ip}:${rn.port}`,
   );
 
-  const upload = await req("whitelist.set", { cards: ["DEADBEEF", "1122AABB", "C0FFEE01"] });
+  const upload = await req("whitelist.set", {
+    cards: ["DEADBEEF", "1122AABB", "C0FFEE01"],
+  });
   const wl = await req("whitelist.get", {});
   step(
     "whitelist round-trip",
-    upload.uploaded === 3 && wl.cards.length === 3 && wl.cards[0] === "DEADBEEF",
+    upload.uploaded === 3 && wl.cards.length === 3 &&
+      wl.cards[0] === "DEADBEEF",
     `${wl.cards.length} cards`,
   );
 

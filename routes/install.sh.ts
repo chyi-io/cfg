@@ -274,8 +274,14 @@ export const handler = define.handlers({
       .replaceAll("__CFG_WS_SCHEME__", wsScheme)
       .replaceAll("__CFG_HOST__", host)
       .replaceAll("__AGENT_VERSION__", version())
-      .replaceAll("__BIN_URL__", `${scheme}://${host}/dist/chyi-cfg-agent-${version()}-x86_64-linux`)
-      .replaceAll("__BIN_SHA256__", "SHA256_PLACEHOLDER_RELEASE_PIPELINE_FILLS_THIS");
+      .replaceAll(
+        "__BIN_URL__",
+        `${scheme}://${host}/dist/chyi-cfg-agent-${version()}-x86_64-linux`,
+      )
+      .replaceAll(
+        "__BIN_SHA256__",
+        "SHA256_PLACEHOLDER_RELEASE_PIPELINE_FILLS_THIS",
+      );
 
     return new Response(body, {
       headers: {

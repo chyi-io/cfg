@@ -14,7 +14,9 @@ export const handler = define.handlers({
     if (!token) return new Response("Missing token", { status: 401 });
 
     const payload = await verify(token);
-    if (!payload) return new Response("Invalid or expired token", { status: 401 });
+    if (!payload) {
+      return new Response("Invalid or expired token", { status: 401 });
+    }
     const agentId = payload.agentId;
 
     const { socket, response } = Deno.upgradeWebSocket(ctx.req);

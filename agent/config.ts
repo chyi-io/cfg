@@ -72,13 +72,15 @@ export function loadConfig(): AgentConfig {
   // partially-seeded config.json (e.g. install.sh writes only cloudUrl) should
   // trigger auto-generation, not be kept as "".
   const cfg: AgentConfig = {
-    cloudUrl: Deno.env.get("CHYI_CFG_URL") || stored.cloudUrl || "wss://cfg.chyi.io/api/agent/ws",
+    cloudUrl: Deno.env.get("CHYI_CFG_URL") || stored.cloudUrl ||
+      "wss://cfg.chyi.io/api/agent/ws",
     agentId: stored.agentId || crypto.randomUUID(),
     agentKey: stored.agentKey || genKey(),
     maxQueue: stored.maxQueue || 16,
   };
 
-  const needsWrite = !stored.agentId || !stored.agentKey || stored.cloudUrl !== cfg.cloudUrl;
+  const needsWrite = !stored.agentId || !stored.agentKey ||
+    stored.cloudUrl !== cfg.cloudUrl;
   if (needsWrite) write(cfg);
 
   return cfg;

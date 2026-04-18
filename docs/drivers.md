@@ -1,12 +1,15 @@
 # Adding a Device Driver
 
-The agent supports multiple device families through a small `Driver` interface. Each driver:
+The agent supports multiple device families through a small `Driver` interface.
+Each driver:
 
-- Knows how to **open** a connection to its kind of device (TCP/IP, FFI, serial, ...).
+- Knows how to **open** a connection to its kind of device (TCP/IP, FFI, serial,
+  ...).
 - Declares its **capabilities** — the feature tabs the cloud UI will render.
 - Provides **typed handlers** for each command its capabilities advertise.
 
-The dispatcher routes per-driver: if a command isn't in a driver's `handlers`, the cloud surfaces a clear "not supported by this device" error (HTTP 501).
+The dispatcher routes per-driver: if a command isn't in a driver's `handlers`,
+the cloud surfaces a clear "not supported by this device" error (HTTP 501).
 
 ## File layout
 
@@ -28,13 +31,17 @@ agent/drivers/
       README.md        ← provenance notes
 ```
 
-**Folder name MUST match `Driver.id`** (e.g. id `acme-scale-x1` → folder `acme-scale-x1`). The embedded-libs extractor derives the filesystem path from the driver id, so a mismatch means your native libs can't be found at runtime.
+**Folder name MUST match `Driver.id`** (e.g. id `acme-scale-x1` → folder
+`acme-scale-x1`). The embedded-libs extractor derives the filesystem path from
+the driver id, so a mismatch means your native libs can't be found at runtime.
 
-To add a driver, create `agent/drivers/<your-driver-id>/` and `register()` it from `agent/drivers/index.ts`.
+To add a driver, create `agent/drivers/<your-driver-id>/` and `register()` it
+from `agent/drivers/index.ts`.
 
 ## Step 1 — declare a Capability (only if it's new)
 
-If your device exposes a feature that no current driver supports, add it to `shared/capabilities.ts`:
+If your device exposes a feature that no current driver supports, add it to
+`shared/capabilities.ts`:
 
 ```ts
 export type Capability =
@@ -45,7 +52,8 @@ export type Capability =
   | "scale_calibration"; // ← new
 ```
 
-Then add a label to `CAPABILITY_LABELS` and decide which `CommandName`s it implies.
+Then add a label to `CAPABILITY_LABELS` and decide which `CommandName`s it
+implies.
 
 ## Step 2 — declare commands (only if new)
 
@@ -83,12 +91,17 @@ class ScaleDevice implements Device {
   private closed = false;
   // ... your transport state (TCP socket, FFI handle, serial port, ...)
 
-  isClosed(): boolean { return this.closed; }
-  close(): Promise<void> { this.closed = true; return Promise.resolve(); }
+  isClosed(): boolean {
+    return this.closed;
+  }
+  close(): Promise<void> {
+    this.closed = true;
+    return Promise.resolve();
+  }
 
-  async tare(): Promise<void> { /* ... */ }
-  async calibrate(knownG: number): Promise<{ offset: number }> { /* ... */ }
-  async info(): Promise<{ model: string; serial: string }> { /* ... */ }
+  async tare(): Promise<void> {/* ... */}
+  async calibrate(knownG: number): Promise<{ offset: number }> {/* ... */}
+  async info(): Promise<{ model: string; serial: string }> {/* ... */}
 }
 
 const handlers: DriverHandlers = {
@@ -105,11 +118,11 @@ const handlers: DriverHandlers = {
 };
 
 export const myScaleDriver: Driver = {
-  id: "acme-scale-x1",                // MUST match the folder name
+  id: "acme-scale-x1", // MUST match the folder name
   name: "Acme Scale X1",
   description: "Industrial weighing scale (TCP, port 5000)",
   capabilities: ["device_info", "scale_calibration"],
-  nativeLibs: ["libScale.so"],        // optional — listed from drivers/<id>/native/
+  nativeLibs: ["libScale.so"], // optional — listed from drivers/<id>/native/
   async open(params: OpenParams): Promise<Device> {
     // ... open TCP / FFI / serial here, return your ScaleDevice
     throw new Error("not implemented");
@@ -136,14 +149,20 @@ export function initBuiltinDrivers(): void {
 
 ## Step 5 — UI (optional)
 
-For a minimal driver, the existing UI is enough: the **Connect** form discovers your driver via `drivers.list`, the **Device info** card auto-renders whatever fields your `connection.info` returns (any object with string keys).
+For a minimal driver, the existing UI is enough: the **Connect** form discovers
+your driver via `drivers.list`, the **Device info** card auto-renders whatever
+fields your `connection.info` returns (any object with string keys).
 
 For a feature page (e.g. tare button for a scale), add:
-- A new island under `islands/live/ScaleEditor.tsx` (use `useAgentSocket`, call `socket.request("scale.tare", {})`).
-- A new route under `routes/live/[agent]/scale.tsx` rendering it.
-- A new entry in `components/live/FeatureNav.tsx`'s `ITEMS` array, gated by your capability.
 
-The nav already filters tabs by `capabilities`, so users only see tabs their device supports.
+- A new island under `islands/live/ScaleEditor.tsx` (use `useAgentSocket`, call
+  `socket.request("scale.tare", {})`).
+- A new route under `routes/live/[agent]/scale.tsx` rendering it.
+- A new entry in `components/live/FeatureNav.tsx`'s `ITEMS` array, gated by your
+  capability.
+
+The nav already filters tabs by `capabilities`, so users only see tabs their
+device supports.
 
 ## Native libraries
 
@@ -161,11 +180,18 @@ If your driver uses FFI (`Deno.dlopen`):
    const libPath = `${dir}/libScale.so`;
    Deno.dlopen(libPath, { … });
    ```
-4. Drop a `README.md` in `native/` with provenance (vendor SDK name, version, upstream URL) and a `SHA256SUMS` for auditability.
+4. Drop a `README.md` in `native/` with provenance (vendor SDK name, version,
+   upstream URL) and a `SHA256SUMS` for auditability.
 
-At runtime `agent/bootstrap.ts` calls `ensureAllDriverNatives()` to extract every registered driver's libs to `<cache>/<driver-id>/`, then re-execs the agent with `LD_LIBRARY_PATH` prepended with each cache dir. Dependent `.so` files (like `libhid.so` for the Chafon driver) are resolved automatically — no `LD_LIBRARY_PATH` entries to manage by hand.
+At runtime `agent/bootstrap.ts` calls `ensureAllDriverNatives()` to extract
+every registered driver's libs to `<cache>/<driver-id>/`, then re-execs the
+agent with `LD_LIBRARY_PATH` prepended with each cache dir. Dependent `.so`
+files (like `libhid.so` for the Chafon driver) are resolved automatically — no
+`LD_LIBRARY_PATH` entries to manage by hand.
 
-At build time `deno compile --include drivers` bundles the whole `drivers/` tree (including every `native/` subdir) into the single binary. Nothing ships or downloads separately.
+At build time `deno compile --include drivers` bundles the whole `drivers/` tree
+(including every `native/` subdir) into the single binary. Nothing ships or
+downloads separately.
 
 ## Mock support
 
@@ -180,13 +206,19 @@ async open(params: OpenParams): Promise<Device> {
 }
 ```
 
-This makes `deno task dev:mock` work for everyone, and lets `scripts/smoke_e2e.ts` exercise your driver in CI without a real scale on the desk.
+This makes `deno task dev:mock` work for everyone, and lets
+`scripts/smoke_e2e.ts` exercise your driver in CI without a real scale on the
+desk.
 
 ## Testing
 
-- **Unit tests** for any binary protocol packing/unpacking go under `agent/tests/` — pure byte-array tests, no FFI.
-- **Dispatcher integration** is automatic — `agent/tests/dispatcher_test.ts` already validates round-trip through the dispatcher; add a few cases for your driver's commands.
-- **Hardware smoke** lives in `agent/tests/hw_smoke_test.ts`, gated by `CFG_HW=1`.
+- **Unit tests** for any binary protocol packing/unpacking go under
+  `agent/tests/` — pure byte-array tests, no FFI.
+- **Dispatcher integration** is automatic — `agent/tests/dispatcher_test.ts`
+  already validates round-trip through the dispatcher; add a few cases for your
+  driver's commands.
+- **Hardware smoke** lives in `agent/tests/hw_smoke_test.ts`, gated by
+  `CFG_HW=1`.
 
 ### Dev loop
 
@@ -208,6 +240,10 @@ CHYI_CFG_URL=ws://localhost:8001/api/agent/ws CHYI_CFG_FFI=mock deno task dev:mo
 
 ## Tips
 
-- Keep all transport / parsing code inside `drivers/<your_driver>/`. The shared layer (cloud, dispatcher) should never need to import driver-specific types.
-- Treat the `Device` returned by `open()` as opaque from the dispatcher's perspective — it's only handed back to your handlers.
-- If multiple capabilities share underlying state (e.g. a mutex), put them in your `Device` class. The dispatcher already serializes commands via its `BUSY` queue, but per-device thread safety is the driver's responsibility.
+- Keep all transport / parsing code inside `drivers/<your_driver>/`. The shared
+  layer (cloud, dispatcher) should never need to import driver-specific types.
+- Treat the `Device` returned by `open()` as opaque from the dispatcher's
+  perspective — it's only handed back to your handlers.
+- If multiple capabilities share underlying state (e.g. a mutex), put them in
+  your `Device` class. The dispatcher already serializes commands via its `BUSY`
+  queue, but per-device thread safety is the driver's responsibility.

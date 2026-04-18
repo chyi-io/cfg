@@ -5,7 +5,11 @@
 // the cloud surfaces a clear "not supported by this device" error.
 
 import type { Capability } from "../../shared/capabilities.ts";
-import type { CommandName, CommandPayloads, CommandResponses } from "../../shared/protocol.ts";
+import type {
+  CommandName,
+  CommandPayloads,
+  CommandResponses,
+} from "../../shared/protocol.ts";
 
 export interface OpenParams {
   ip: string;

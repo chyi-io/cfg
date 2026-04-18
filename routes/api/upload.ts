@@ -1,5 +1,12 @@
-import { detectVendorFromFile, getVendor, buildStructuredConfig } from "../../lib/registry.ts";
-import { serializeAllParamMetas, buildFullVendorConfig } from "../../lib/validation.ts";
+import {
+  buildStructuredConfig,
+  detectVendorFromFile,
+  getVendor,
+} from "../../lib/registry.ts";
+import {
+  buildFullVendorConfig,
+  serializeAllParamMetas,
+} from "../../lib/validation.ts";
 import { jsonResponse as json } from "../../lib/http.ts";
 import { define } from "../../utils.ts";
 

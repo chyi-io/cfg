@@ -1,5 +1,5 @@
-import type { VendorPlugin, ParamSchema } from "../../lib/types.ts";
-import { parseCfgFile, generateCfgFile } from "./parser.ts";
+import type { ParamSchema, VendorPlugin } from "../../lib/types.ts";
+import { generateCfgFile, parseCfgFile } from "./parser.ts";
 import { detectDeviceFamily } from "./detect.ts";
 import { categorizeParam } from "./categories.ts";
 import { buildFallbackSchema } from "./schemas.ts";

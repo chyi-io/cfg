@@ -62,11 +62,17 @@ function sizeMatches(path: string, expected: number): boolean {
  *
  * Idempotent: skips writing files that already exist with the right size.
  */
-export function ensureDriverNatives(driverId: string, files: string[]): string | null {
+export function ensureDriverNatives(
+  driverId: string,
+  files: string[],
+): string | null {
   if (files.length === 0) return null;
   const dir = driverNativeDir(driverId);
 
-  const blobs = files.map((f) => ({ name: f, bytes: readEmbedded(driverId, f) }));
+  const blobs = files.map((f) => ({
+    name: f,
+    bytes: readEmbedded(driverId, f),
+  }));
   if (blobs.every((b) => b.bytes === null)) {
     // Driver expected libs but the build didn't bundle them.
     console.warn(

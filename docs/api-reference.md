@@ -1,6 +1,7 @@
 # API Reference
 
-All API routes return JSON unless otherwise noted. Error responses use `{ "error": "message" }`.
+All API routes return JSON unless otherwise noted. Error responses use
+`{ "error": "message" }`.
 
 ## `GET /api/vendors`
 
@@ -44,10 +45,10 @@ Get a full default configuration for a vendor/device pair.
 
 ### Query Parameters
 
-| Param | Required | Description |
-|-------|----------|-------------|
-| `vendor` | Yes | Vendor ID (e.g. `teltonika`) |
-| `device` | Yes | Device ID (e.g. `fmb`) |
+| Param    | Required | Description                  |
+| -------- | -------- | ---------------------------- |
+| `vendor` | Yes      | Vendor ID (e.g. `teltonika`) |
+| `device` | Yes      | Device ID (e.g. `fmb`)       |
 
 ### Success Response (200)
 
@@ -88,11 +89,11 @@ Returns a `ConfigPayload` object:
 
 ### Error Responses
 
-| Status | Condition |
-|--------|-----------|
-| 400 | Missing `vendor` or `device` query parameter |
-| 404 | Unknown vendor ID |
-| 404 | Unknown device ID for vendor |
+| Status | Condition                                    |
+| ------ | -------------------------------------------- |
+| 400    | Missing `vendor` or `device` query parameter |
+| 404    | Unknown vendor ID                            |
+| 404    | Unknown device ID for vendor                 |
 
 ---
 
@@ -104,13 +105,14 @@ Upload a config file for auto-detection and parsing.
 
 `Content-Type: multipart/form-data`
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field  | Type | Description                      |
+| ------ | ---- | -------------------------------- |
 | `file` | File | The configuration file to upload |
 
 ### Success Response (200)
 
-Same `ConfigPayload` structure as `/api/defaults`, but with the parsed config values from the uploaded file.
+Same `ConfigPayload` structure as `/api/defaults`, but with the parsed config
+values from the uploaded file.
 
 ### Auto-Detection Process
 
@@ -122,10 +124,10 @@ Same `ConfigPayload` structure as `/api/defaults`, but with the parsed config va
 
 ### Error Responses
 
-| Status | Condition |
-|--------|-----------|
-| 400 | No file provided in the form data |
-| 400 | No vendor could parse the uploaded file |
+| Status | Condition                               |
+| ------ | --------------------------------------- |
+| 400    | No file provided in the form data       |
+| 400    | No vendor could parse the uploaded file |
 
 ---
 
@@ -160,15 +162,16 @@ Content-Disposition: attachment; filename="config.cfg"
 
 ### Validation
 
-Before generating the file, the server validates every parameter value against its Zod schema. If there are validation errors, the download is rejected.
+Before generating the file, the server validates every parameter value against
+its Zod schema. If there are validation errors, the download is rejected.
 
 ### Error Responses
 
-| Status | Condition |
-|--------|-----------|
-| 400 | Missing `vendorId`, `deviceId`, or `config` |
-| 400 | Validation errors — returns `{ "error": "Validation failed", "details": { "2004": "Must be a string" } }` |
-| 404 | Unknown vendor or device ID |
+| Status | Condition                                                                                                 |
+| ------ | --------------------------------------------------------------------------------------------------------- |
+| 400    | Missing `vendorId`, `deviceId`, or `config`                                                               |
+| 400    | Validation errors — returns `{ "error": "Validation failed", "details": { "2004": "Must be a string" } }` |
+| 404    | Unknown vendor or device ID                                                                               |
 
 ---
 
@@ -208,10 +211,12 @@ Get a single documentation page rendered as HTML.
 
 ## JSDoc API Docs
 
-Auto-generated API documentation from source code JSDoc comments is available at [`/docs/api/`](/docs/api/) after running:
+Auto-generated API documentation from source code JSDoc comments is available at
+[`/docs/api/`](/docs/api/) after running:
 
 ```bash
 deno task docs
 ```
 
-This generates HTML documentation for all core library modules and vendor plugins.
+This generates HTML documentation for all core library modules and vendor
+plugins.

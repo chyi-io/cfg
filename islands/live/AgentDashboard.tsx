@@ -4,7 +4,6 @@ import FeatureNav from "../../components/live/FeatureNav.tsx";
 import {
   clearActiveSession,
   clearToken,
-  loadActiveSession,
   loadStoredToken,
   saveActiveSession,
   useAgentSocket,
@@ -61,7 +60,10 @@ export default function AgentDashboard({ agentId }: Props) {
         if (s.driver) setActiveDriver(s.driver);
         if (s.capabilities) {
           setCapabilities(s.capabilities);
-          saveActiveSession({ driver: s.driver ?? "", capabilities: s.capabilities });
+          saveActiveSession({
+            driver: s.driver ?? "",
+            capabilities: s.capabilities,
+          });
         }
       }
     }).catch(() => {
@@ -138,17 +140,25 @@ export default function AgentDashboard({ agentId }: Props) {
 
       {!info
         ? (
-          <form onSubmit={connect} class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
+          <form
+            onSubmit={connect}
+            class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3"
+          >
             <h2 class="font-semibold text-gray-900">Connect to a device</h2>
 
             {drivers.length === 0
-              ? <p class="text-sm text-gray-500">Loading available drivers...</p>
+              ? (
+                <p class="text-sm text-gray-500">
+                  Loading available drivers...
+                </p>
+              )
               : (
                 <label class="block text-sm">
                   <span class="text-gray-700">Driver</span>
                   <select
                     value={connectForm.driver}
-                    onChange={(e) => onDriverChange((e.target as HTMLSelectElement).value)}
+                    onChange={(e) =>
+                      onDriverChange((e.target as HTMLSelectElement).value)}
                     class="mt-1 w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm bg-white"
                   >
                     {drivers.map((d) => (
@@ -167,7 +177,10 @@ export default function AgentDashboard({ agentId }: Props) {
                   type="text"
                   value={connectForm.ip}
                   onInput={(e) =>
-                    setConnectForm({ ...connectForm, ip: (e.target as HTMLInputElement).value })}
+                    setConnectForm({
+                      ...connectForm,
+                      ip: (e.target as HTMLInputElement).value,
+                    })}
                   class="mt-1 w-full rounded-md border border-gray-200 px-2 py-1.5 font-mono text-sm"
                 />
               </label>
@@ -179,7 +192,10 @@ export default function AgentDashboard({ agentId }: Props) {
                   onInput={(e) =>
                     setConnectForm({
                       ...connectForm,
-                      port: Number.parseInt((e.target as HTMLInputElement).value, 10) || 0,
+                      port: Number.parseInt(
+                        (e.target as HTMLInputElement).value,
+                        10,
+                      ) || 0,
                     })}
                   class="mt-1 w-full rounded-md border border-gray-200 px-2 py-1.5 font-mono text-sm"
                 />
@@ -187,7 +203,8 @@ export default function AgentDashboard({ agentId }: Props) {
             </div>
             <button
               type="submit"
-              disabled={busy || !connectForm.driver || socket.state !== "open" || !socket.agentConnected}
+              disabled={busy || !connectForm.driver ||
+                socket.state !== "open" || !socket.agentConnected}
               class="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {busy ? "Connecting..." : "Connect"}
@@ -221,7 +238,8 @@ export default function AgentDashboard({ agentId }: Props) {
           <div>
             <h2 class="font-semibold text-gray-900">Session</h2>
             <p class="text-xs text-gray-500 mt-0.5">
-              Paired with <span class="font-mono">{agentId.substring(0, 8)}</span>
+              Paired with{" "}
+              <span class="font-mono">{agentId.substring(0, 8)}</span>
             </p>
           </div>
           <button
@@ -240,14 +258,20 @@ export default function AgentDashboard({ agentId }: Props) {
 function DeviceInfoTable({ info }: { info: Record<string, unknown> }) {
   const entries = Object.entries(info);
   if (entries.length === 0) {
-    return <p class="text-sm text-gray-500">No info reported by this device.</p>;
+    return (
+      <p class="text-sm text-gray-500">No info reported by this device.</p>
+    );
   }
   return (
     <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
       {entries.map(([k, v]) => (
         <>
           <dt class="text-gray-500">{humanize(k)}</dt>
-          <dd class={looksMono(v) ? "font-mono text-xs text-gray-900 break-all" : "text-gray-900"}>
+          <dd
+            class={looksMono(v)
+              ? "font-mono text-xs text-gray-900 break-all"
+              : "text-gray-900"}
+          >
             {render(v)}
           </dd>
         </>
@@ -278,14 +302,16 @@ function render(v: unknown): string {
 function NotPairedBanner({ agentId }: { agentId: string }) {
   return (
     <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      This browser is not paired with agent <span class="font-mono">{agentId.substring(0, 8)}</span>.
-      {" "}
+      This browser is not paired with agent{" "}
+      <span class="font-mono">{agentId.substring(0, 8)}</span>.{" "}
       <a href="/live" class="underline font-semibold">Pair now →</a>
     </div>
   );
 }
 
 function describeError(e: unknown): string {
-  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  if (e && typeof e === "object" && "message" in e) {
+    return String((e as { message: unknown }).message);
+  }
   return String(e);
 }

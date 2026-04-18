@@ -1,4 +1,4 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { ConfigData } from "../components/types.ts";
 import ConfigEditor from "./ConfigEditor.tsx";
 
@@ -23,8 +23,12 @@ export default function ConfigPageIsland() {
     return (
       <div class="min-h-screen flex items-center justify-center">
         <div class="text-center">
-          <h1 class="text-2xl font-bold text-gray-800 mb-4">No configuration loaded</h1>
-          <a href="/" class="text-blue-600 hover:underline">Go back to upload</a>
+          <h1 class="text-2xl font-bold text-gray-800 mb-4">
+            No configuration loaded
+          </h1>
+          <a href="/" class="text-blue-600 hover:underline">
+            Go back to upload
+          </a>
         </div>
       </div>
     );

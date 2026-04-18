@@ -31,12 +31,22 @@ CSS v4**.
 
 cfg is split into two cleanly separated feature areas:
 
-1. **File-based config editor** at `/` — upload, edit, and download static config files for the supported vendors. No device required, works fully offline in the browser.
-2. **Live-device configuration** at `/live` — talk to real devices over the network through a small Linux agent installed on the LAN. The agent is **driver-pluggable**: it ships with a Chafon M200 RFID driver today; add new device families via the [drivers guide](docs/drivers.md).
+1. **File-based config editor** at `/` — upload, edit, and download static
+   config files for the supported vendors. No device required, works fully
+   offline in the browser.
+2. **Live-device configuration** at `/live` — talk to real devices over the
+   network through a small Linux agent installed on the LAN. The agent is
+   **driver-pluggable**: it ships with a Chafon M200 RFID driver today; add new
+   device families via the [drivers guide](docs/drivers.md).
 
-End users install nothing — the device-side operator runs `curl -fSL https://cfg.chyi.io/install.sh | bash` once. Native device libraries are bundled inside the agent binary and auto-extracted on first run; there is no separate driver download or manual file placement.
+End users install nothing — the device-side operator runs
+`curl -fSL https://cfg.chyi.io/install.sh | bash` once. Native device libraries
+are bundled inside the agent binary and auto-extracted on first run; there is no
+separate driver download or manual file placement.
 
-**Live-device docs:** [`architecture`](docs/live-architecture.md) · [`agent CLI`](docs/agent.md) · [`wire protocol`](docs/protocol.md) · [`writing a driver`](docs/drivers.md) · [`cloud deploy`](docs/deploy.md)
+**Live-device docs:** [`architecture`](docs/live-architecture.md) ·
+[`agent CLI`](docs/agent.md) · [`wire protocol`](docs/protocol.md) ·
+[`writing a driver`](docs/drivers.md) · [`cloud deploy`](docs/deploy.md)
 
 ## Quick Start
 
@@ -53,9 +63,12 @@ deno task test             # all unit tests (no hardware needed)
 deno task agent:compile    # compile dist/chyi-cfg-agent (single-binary, native libs embedded)
 ```
 
-After `deno task dev`, visit `http://localhost:8001/live` (or `5173` — both work thanks to the WS-port rewrite in `useAgentSocket`), paste the pair code from the terminal, and you're on the dashboard.
+After `deno task dev`, visit `http://localhost:8001/live` (or `5173` — both work
+thanks to the WS-port rewrite in `useAgentSocket`), paste the pair code from the
+terminal, and you're on the dashboard.
 
-For real hardware, drop an M200-capable binary on a Linux box on the reader's LAN:
+For real hardware, drop an M200-capable binary on a Linux box on the reader's
+LAN:
 
 ```bash
 curl -fSL http://localhost:8001/install.sh | bash   # local dev cloud
@@ -90,15 +103,15 @@ File editor:
 
 Live device:
 
-| Method | Path                  | Description                                                 |
-| ------ | --------------------- | ----------------------------------------------------------- |
-| `GET`  | `/api/live/health`    | Cloud liveness + version + protocol version                 |
-| `POST` | `/api/live/pair`      | Consume pair code → return browser token                    |
-| `WS`   | `/api/live/ws`        | Browser ↔ cloud relay (token in query string)               |
-| `WS`   | `/api/agent/ws`       | Agent ↔ cloud relay (HMAC challenge auth)                   |
-| `GET`  | `/install.sh`         | Templated bash installer (version + URLs inlined)           |
-| `GET`  | `/uninstall.sh`       | Wrapper that runs `chyi-cfg-agent uninstall --yes`          |
-| `GET`  | `/dist/{file}`        | Serves the compiled agent binary for the installer          |
+| Method | Path               | Description                                        |
+| ------ | ------------------ | -------------------------------------------------- |
+| `GET`  | `/api/live/health` | Cloud liveness + version + protocol version        |
+| `POST` | `/api/live/pair`   | Consume pair code → return browser token           |
+| `WS`   | `/api/live/ws`     | Browser ↔ cloud relay (token in query string)      |
+| `WS`   | `/api/agent/ws`    | Agent ↔ cloud relay (HMAC challenge auth)          |
+| `GET`  | `/install.sh`      | Templated bash installer (version + URLs inlined)  |
+| `GET`  | `/uninstall.sh`    | Wrapper that runs `chyi-cfg-agent uninstall --yes` |
+| `GET`  | `/dist/{file}`     | Serves the compiled agent binary for the installer |
 
 ## Project Structure
 

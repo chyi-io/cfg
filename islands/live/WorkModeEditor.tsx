@@ -1,7 +1,11 @@
 import { useEffect, useState } from "preact/hooks";
 import AgentStatusBanner from "./AgentStatusBanner.tsx";
 import FeatureNav from "../../components/live/FeatureNav.tsx";
-import { loadActiveSession, loadStoredToken, useAgentSocket } from "./useAgentSocket.ts";
+import {
+  loadActiveSession,
+  loadStoredToken,
+  useAgentSocket,
+} from "./useAgentSocket.ts";
 import { WORK_MODE_LABELS } from "../../shared/types.ts";
 import Toast from "../../components/live/Toast.tsx";
 
@@ -58,30 +62,50 @@ export default function WorkModeEditor({ agentId }: Props) {
 
   return (
     <div class="space-y-4">
-      <AgentStatusBanner state={socket.state} agentConnected={socket.agentConnected} agentId={agentId} />
+      <AgentStatusBanner
+        state={socket.state}
+        agentConnected={socket.agentConnected}
+        agentId={agentId}
+      />
 
-      <FeatureNav agentId={agentId} active="work_mode" capabilities={session?.capabilities} />
+      <FeatureNav
+        agentId={agentId}
+        active="work_mode"
+        capabilities={session?.capabilities}
+      />
 
       {err && <Toast kind="error" message={err} onDismiss={() => setErr("")} />}
-      {okMsg && <Toast kind="success" message={okMsg} onDismiss={() => setOkMsg("")} />}
+      {okMsg && (
+        <Toast
+          kind="success"
+          message={okMsg}
+          onDismiss={() => setOkMsg("")}
+        />
+      )}
 
       <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
         <h2 class="font-semibold text-gray-900">Work mode</h2>
         {current === null
           ? (
             <p class="text-sm text-gray-500">
-              {socket.agentConnected ? "Loading..." : "Open the connection from the device-info page first."}
+              {socket.agentConnected
+                ? "Loading..."
+                : "Open the connection from the device-info page first."}
             </p>
           )
           : (
             <>
               <p class="text-xs text-gray-500">
-                Read-modify-write: only the WORKMODE field changes on the reader. All other DevicePara
-                values (frequency, antenna, power) are preserved.
+                Read-modify-write: only the WORKMODE field changes on the
+                reader. All other DevicePara values (frequency, antenna, power)
+                are preserved.
               </p>
               <fieldset class="space-y-2">
                 {([0, 1, 2] as const).map((m) => (
-                  <label key={m} class="flex items-start gap-2 cursor-pointer rounded-md border border-gray-200 p-2 hover:bg-gray-50">
+                  <label
+                    key={m}
+                    class="flex items-start gap-2 cursor-pointer rounded-md border border-gray-200 p-2 hover:bg-gray-50"
+                  >
                     <input
                       type="radio"
                       name="workmode"
@@ -91,7 +115,9 @@ export default function WorkModeEditor({ agentId }: Props) {
                       class="mt-0.5"
                     />
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{m} — {WORK_MODE_LABELS[m]}</div>
+                      <div class="text-sm font-medium text-gray-900">
+                        {m} — {WORK_MODE_LABELS[m]}
+                      </div>
                     </div>
                   </label>
                 ))}
@@ -129,14 +155,16 @@ export default function WorkModeEditor({ agentId }: Props) {
 function NotPaired({ agentId }: { agentId: string }) {
   return (
     <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      This browser is not paired with agent <span class="font-mono">{agentId.substring(0, 8)}</span>.
-      {" "}
+      This browser is not paired with agent{" "}
+      <span class="font-mono">{agentId.substring(0, 8)}</span>.{" "}
       <a href="/live" class="underline font-semibold">Pair now →</a>
     </div>
   );
 }
 
 function describe(e: unknown): string {
-  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  if (e && typeof e === "object" && "message" in e) {
+    return String((e as { message: unknown }).message);
+  }
   return String(e);
 }

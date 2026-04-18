@@ -1,4 +1,4 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { ConfigData } from "../components/types.ts";
 import ConfigEditor from "./ConfigEditor.tsx";
 
@@ -7,7 +7,9 @@ interface ConfigLoaderProps {
   deviceId: string;
 }
 
-export default function ConfigLoaderIsland({ vendorId, deviceId }: ConfigLoaderProps) {
+export default function ConfigLoaderIsland(
+  { vendorId, deviceId }: ConfigLoaderProps,
+) {
   const [data, setData] = useState<ConfigData | null>(null);
   const [error, setError] = useState("");
 
@@ -39,7 +41,9 @@ export default function ConfigLoaderIsland({ vendorId, deviceId }: ConfigLoaderP
     return (
       <div class="min-h-screen flex items-center justify-center">
         <div class="text-center">
-          <h1 class="text-2xl font-bold text-gray-800 mb-2">Configuration Error</h1>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            Configuration Error
+          </h1>
           <p class="text-gray-500 mb-4">{error}</p>
           <a href="/" class="text-blue-600 hover:underline">Go back</a>
         </div>
@@ -52,7 +56,9 @@ export default function ConfigLoaderIsland({ vendorId, deviceId }: ConfigLoaderP
       <div class="min-h-screen flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
-          <p class="text-sm text-gray-500">Loading {vendorId} {deviceId} configuration...</p>
+          <p class="text-sm text-gray-500">
+            Loading {vendorId} {deviceId} configuration...
+          </p>
         </div>
       </div>
     );

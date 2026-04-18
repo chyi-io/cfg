@@ -25,7 +25,10 @@ export async function getAgentKey(agentId: string): Promise<string | null> {
   return r.value?.agentKey ?? null;
 }
 
-export async function putAgentKey(agentId: string, agentKey: string): Promise<void> {
+export async function putAgentKey(
+  agentId: string,
+  agentKey: string,
+): Promise<void> {
   const k = await openKv();
   await k.set(["agents", agentId], { agentKey, createdAt: Date.now() });
 }
@@ -35,7 +38,11 @@ export interface PairRecord {
   expiresAt: number;
 }
 
-export async function putPairCode(code: string, agentId: string, ttlMs: number): Promise<number> {
+export async function putPairCode(
+  code: string,
+  agentId: string,
+  ttlMs: number,
+): Promise<number> {
   const k = await openKv();
   const expiresAt = Date.now() + ttlMs;
   await k.set(["pair", code], { agentId, expiresAt }, { expireIn: ttlMs });
@@ -63,9 +70,15 @@ export interface TokenRecord {
   exp: number;
 }
 
-export async function putToken(token: string, agentId: string, exp: number): Promise<void> {
+export async function putToken(
+  token: string,
+  agentId: string,
+  exp: number,
+): Promise<void> {
   const k = await openKv();
-  await k.set(["tokens", token], { agentId, exp }, { expireIn: Math.max(0, exp - Date.now()) });
+  await k.set(["tokens", token], { agentId, exp }, {
+    expireIn: Math.max(0, exp - Date.now()),
+  });
 }
 
 export async function revokeTokensForAgent(agentId: string): Promise<number> {

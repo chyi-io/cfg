@@ -1,5 +1,5 @@
 import { App, staticFiles } from "fresh";
-import { registerVendor, _clearVendors } from "./lib/registry.ts";
+import { _clearVendors, registerVendor } from "./lib/registry.ts";
 import { teltonikaPlugin } from "./vendors/teltonika/mod.ts";
 import { ruptelaPlugin } from "./vendors/ruptela/mod.ts";
 import { chafonPlugin } from "./vendors/chafon/mod.ts";

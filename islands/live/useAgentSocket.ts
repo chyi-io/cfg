@@ -16,7 +16,10 @@ export type ConnectionState = "idle" | "connecting" | "open" | "closed";
 export interface AgentSocket {
   state: ConnectionState;
   agentConnected: boolean;
-  request<K extends CommandName>(cmd: K, payload: CommandPayloads[K]): Promise<CommandResponses[K]>;
+  request<K extends CommandName>(
+    cmd: K,
+    payload: CommandPayloads[K],
+  ): Promise<CommandResponses[K]>;
   onEvent(event: EventName, handler: () => void): () => void;
   close(): void;
 }
@@ -82,13 +85,17 @@ export function clearActiveSession(): void {
 }
 
 export function useAgentSocket(token: string | null): AgentSocket {
-  const [state, setState] = useState<ConnectionState>(token ? "connecting" : "idle");
+  const [state, setState] = useState<ConnectionState>(
+    token ? "connecting" : "idle",
+  );
   const [agentConnected, setAgentConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
-  const pendingRef = useRef(new Map<string, {
-    resolve: (data: unknown) => void;
-    reject: (err: ErrorBody) => void;
-  }>());
+  const pendingRef = useRef(
+    new Map<string, {
+      resolve: (data: unknown) => void;
+      reject: (err: ErrorBody) => void;
+    }>(),
+  );
   const listenersRef = useRef(new Map<EventName, Set<() => void>>());
 
   const scheduleReconnect = useRef<number | null>(null);
@@ -118,12 +125,15 @@ export function useAgentSocket(token: string | null): AgentSocket {
       // everything from one origin and needs no rewrite.
       let host = location.host;
       if (
-        (location.hostname === "localhost" || location.hostname === "127.0.0.1") &&
+        (location.hostname === "localhost" ||
+          location.hostname === "127.0.0.1") &&
         location.port === "5173"
       ) {
         host = `${location.hostname}:8001`;
       }
-      const url = `${proto}//${host}/api/live/ws?token=${encodeURIComponent(token)}`;
+      const url = `${proto}//${host}/api/live/ws?token=${
+        encodeURIComponent(token)
+      }`;
       setState("connecting");
       const ws = new WebSocket(url);
       socketRef.current = ws;
@@ -151,7 +161,7 @@ export function useAgentSocket(token: string | null): AgentSocket {
         }
         if (env.kind === "event") {
           const ls = listenersRef.current.get(env.event);
-          if (ls) for (const fn of ls) fn();
+          if (ls) { for (const fn of ls) fn(); }
           if (env.event === "agent.connected") setAgentConnected(true);
           if (env.event === "agent.disconnected") setAgentConnected(false);
           return;
@@ -173,7 +183,10 @@ export function useAgentSocket(token: string | null): AgentSocket {
         if (disposed) return;
         const wait = backoffRef.current + Math.floor(Math.random() * 500);
         backoffRef.current = Math.min(backoffRef.current * 2, 30000);
-        scheduleReconnect.current = setTimeout(connect, wait) as unknown as number;
+        scheduleReconnect.current = setTimeout(
+          connect,
+          wait,
+        ) as unknown as number;
       };
 
       ws.onerror = () => {
@@ -194,7 +207,10 @@ export function useAgentSocket(token: string | null): AgentSocket {
   }, [token]);
 
   const request = useCallback(
-    <K extends CommandName>(cmd: K, payload: CommandPayloads[K]): Promise<CommandResponses[K]> => {
+    <K extends CommandName>(
+      cmd: K,
+      payload: CommandPayloads[K],
+    ): Promise<CommandResponses[K]> => {
       return new Promise((resolve, reject) => {
         const id = crypto.randomUUID();
         const traceId = crypto.randomUUID();

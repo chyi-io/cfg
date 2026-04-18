@@ -1,10 +1,15 @@
-import { type ZodType, type ZodNumber, type ZodEnum, type ZodString, ZodFirstPartyTypeKind } from "zod";
+import {
+  type ZodEnum,
+  ZodFirstPartyTypeKind,
+  type ZodNumber,
+  type ZodString,
+} from "zod";
 import type {
-  ParamSchema,
-  ValidationResult,
-  SerializedParamMeta,
-  VendorPlugin,
   DeviceDefinition,
+  ParamSchema,
+  SerializedParamMeta,
+  ValidationResult,
+  VendorPlugin,
 } from "./types.ts";
 import { getAllVendorParamIds } from "./registry.ts";
 
@@ -129,7 +134,7 @@ export const serializeAllParamMetas = (
  */
 export const buildFullVendorConfig = (
   vendor: VendorPlugin,
-  deviceDef: DeviceDefinition,
+  _deviceDef: DeviceDefinition,
   config: Record<string, string>,
 ): Record<string, string> => {
   const allIds = getAllVendorParamIds(vendor);
@@ -156,8 +161,14 @@ const inferType = (schema: ParamSchema): "string" | "number" => {
   if (schema.min !== undefined || schema.max !== undefined) return "number";
 
   try {
-    const zodDef = (schema.zodSchema as ZodNumber | ZodString | ZodEnum<[string, ...string[]]>)._def;
-    if ("typeName" in zodDef && zodDef.typeName === ZodFirstPartyTypeKind.ZodNumber) {
+    const zodDef = (schema.zodSchema as
+      | ZodNumber
+      | ZodString
+      | ZodEnum<[string, ...string[]]>)._def;
+    if (
+      "typeName" in zodDef &&
+      zodDef.typeName === ZodFirstPartyTypeKind.ZodNumber
+    ) {
       return "number";
     }
   } catch {

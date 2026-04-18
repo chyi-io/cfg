@@ -3,7 +3,11 @@
 // the C# WhiteListParam.cs / DeviceParam.cs which use explicit ByValArray
 // markers to enforce a packed layout.
 
-import type { DeviceFullInfo, DevicePara, RemoteNetInfo } from "../../../shared/types.ts";
+import type {
+  DeviceFullInfo,
+  DevicePara,
+  RemoteNetInfo,
+} from "../../../shared/types.ts";
 export type { DeviceFullInfo, DevicePara, RemoteNetInfo };
 
 // ─────────── DevicePara ───────────────────────────────────────────────────────
@@ -11,7 +15,9 @@ export const DEVICE_PARA_SIZE = 25;
 
 export function unpackDevicePara(buf: Uint8Array): DevicePara {
   if (buf.byteLength < DEVICE_PARA_SIZE) {
-    throw new Error(`DevicePara buffer too small: ${buf.byteLength} < ${DEVICE_PARA_SIZE}`);
+    throw new Error(
+      `DevicePara buffer too small: ${buf.byteLength} < ${DEVICE_PARA_SIZE}`,
+    );
   }
   const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
   return {
@@ -81,7 +87,9 @@ export const REMOTE_NET_INFO_SIZE = 8;
 
 export function unpackRemoteNetInfo(buf: Uint8Array): RemoteNetInfo {
   if (buf.byteLength < REMOTE_NET_INFO_SIZE) {
-    throw new Error(`RemoteNetInfo buffer too small: ${buf.byteLength} < ${REMOTE_NET_INFO_SIZE}`);
+    throw new Error(
+      `RemoteNetInfo buffer too small: ${buf.byteLength} < ${REMOTE_NET_INFO_SIZE}`,
+    );
   }
   return {
     enabled: buf[0] !== 0,
@@ -91,9 +99,14 @@ export function unpackRemoteNetInfo(buf: Uint8Array): RemoteNetInfo {
   };
 }
 
-export function packRemoteNetInfo(info: RemoteNetInfo): Uint8Array<ArrayBuffer> {
+export function packRemoteNetInfo(
+  info: RemoteNetInfo,
+): Uint8Array<ArrayBuffer> {
   const ipParts = info.ip.split(".").map((s) => Number.parseInt(s, 10));
-  if (ipParts.length !== 4 || ipParts.some((n) => Number.isNaN(n) || n < 0 || n > 255)) {
+  if (
+    ipParts.length !== 4 ||
+    ipParts.some((n) => Number.isNaN(n) || n < 0 || n > 255)
+  ) {
     throw new Error(`Invalid IPv4 address: ${info.ip}`);
   }
   if (info.port < 0 || info.port > 65535) {
@@ -120,7 +133,9 @@ function asciiCStr(buf: Uint8Array, offset: number, maxLen: number): string {
   while (end < max && buf[end] !== 0) end++;
   let realEnd = end;
   while (realEnd > offset && buf[realEnd - 1] < 0x20) realEnd--;
-  return new TextDecoder("utf-8", { fatal: false }).decode(buf.subarray(offset, realEnd));
+  return new TextDecoder("utf-8", { fatal: false }).decode(
+    buf.subarray(offset, realEnd),
+  );
 }
 
 function hexField(buf: Uint8Array, offset: number, len: number): string {
@@ -134,7 +149,9 @@ function hexField(buf: Uint8Array, offset: number, len: number): string {
 
 export function unpackDeviceFullInfo(buf: Uint8Array): DeviceFullInfo {
   if (buf.byteLength < DEVICE_FULL_INFO_SIZE) {
-    throw new Error(`DeviceFullInfo buffer too small: ${buf.byteLength} < ${DEVICE_FULL_INFO_SIZE}`);
+    throw new Error(
+      `DeviceFullInfo buffer too small: ${buf.byteLength} < ${DEVICE_FULL_INFO_SIZE}`,
+    );
   }
   return {
     deviceHardVersion: asciiCStr(buf, 0, 32),
@@ -158,7 +175,9 @@ export interface WhiteListChunk {
 
 export function unpackWhiteListChunk(buf: Uint8Array): WhiteListChunk {
   if (buf.byteLength < WHITELIST_BUFFER_SIZE) {
-    throw new Error(`WhiteList buffer too small: ${buf.byteLength} < ${WHITELIST_BUFFER_SIZE}`);
+    throw new Error(
+      `WhiteList buffer too small: ${buf.byteLength} < ${WHITELIST_BUFFER_SIZE}`,
+    );
   }
   return {
     status: buf[0],
@@ -189,7 +208,9 @@ export function buildSetWhitelistPacket(
   for (let i = 0; i < cards.length; i++) {
     const card = cards[i];
     if (card.length > CARD_SLOT_SIZE - 1) {
-      throw new Error(`Card ${i} too long: ${card.length} > ${CARD_SLOT_SIZE - 1}`);
+      throw new Error(
+        `Card ${i} too long: ${card.length} > ${CARD_SLOT_SIZE - 1}`,
+      );
     }
     const slotOffset = 3 + i * CARD_SLOT_SIZE;
     buf[slotOffset] = card.length;
@@ -198,7 +219,10 @@ export function buildSetWhitelistPacket(
   return buf;
 }
 
-export function decodeCardSlots(payload: Uint8Array, infoCount: number): Uint8Array[] {
+export function decodeCardSlots(
+  payload: Uint8Array,
+  infoCount: number,
+): Uint8Array[] {
   const cards: Uint8Array[] = [];
   for (let i = 0; i < infoCount; i++) {
     const slotOffset = i * CARD_SLOT_SIZE;

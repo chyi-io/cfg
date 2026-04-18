@@ -17,7 +17,10 @@ const ROOT = dirname(dirname(fromFileUrl(import.meta.url)));
 const AGENT_DIR = join(ROOT, "agent");
 
 const cloudPort = Number.parseInt(Deno.env.get("CFG_DEV_PORT") ?? "8001", 10);
-const vitePort = Number.parseInt(Deno.env.get("CFG_DEV_VITE_PORT") ?? "5173", 10);
+const vitePort = Number.parseInt(
+  Deno.env.get("CFG_DEV_VITE_PORT") ?? "5173",
+  10,
+);
 // Agent connects directly to the cloud port — Vite can't proxy WS upgrades
 // through the Fresh plugin pipeline. The browser can use either port; install.sh
 // handles the Vite→cloud rewrite for that path.
@@ -43,7 +46,14 @@ if (!build.success) {
 }
 
 const cloud = new Deno.Command("deno", {
-  args: ["serve", "-A", "--unstable-kv", "--port", String(cloudPort), "_fresh/server.js"],
+  args: [
+    "serve",
+    "-A",
+    "--unstable-kv",
+    "--port",
+    String(cloudPort),
+    "_fresh/server.js",
+  ],
   cwd: ROOT,
   stdout: "inherit",
   stderr: "inherit",
@@ -73,19 +83,33 @@ const agent = new Deno.Command("deno", {
 const stop = () => {
   console.log("\n[dev_all] shutting down...");
   for (const c of [cloud, vite, agent]) {
-    try { c.kill("SIGTERM"); } catch (_) { /* ignore */ }
+    try {
+      c.kill("SIGTERM");
+    } catch (_) { /* ignore */ }
   }
-  Promise.allSettled([cloud.status, vite.status, agent.status]).then(() => Deno.exit(0));
+  Promise.allSettled([cloud.status, vite.status, agent.status]).then(() =>
+    Deno.exit(0)
+  );
 };
 Deno.addSignalListener("SIGINT", stop);
-try { Deno.addSignalListener("SIGTERM", stop); } catch (_) { /* not on Windows */ }
+try {
+  Deno.addSignalListener("SIGTERM", stop);
+} catch (_) { /* not on Windows */ }
 
 const [cloudStatus, viteStatus, agentStatus] = await Promise.all([
   cloud.status,
   vite.status,
   agent.status,
 ]);
-if (!cloudStatus.success) console.error(`[dev_all] cloud exited: ${cloudStatus.code}`);
-if (!viteStatus.success) console.error(`[dev_all] vite exited: ${viteStatus.code}`);
-if (!agentStatus.success) console.error(`[dev_all] agent exited: ${agentStatus.code}`);
-Deno.exit(cloudStatus.success && viteStatus.success && agentStatus.success ? 0 : 1);
+if (!cloudStatus.success) {
+  console.error(`[dev_all] cloud exited: ${cloudStatus.code}`);
+}
+if (!viteStatus.success) {
+  console.error(`[dev_all] vite exited: ${viteStatus.code}`);
+}
+if (!agentStatus.success) {
+  console.error(`[dev_all] agent exited: ${agentStatus.code}`);
+}
+Deno.exit(
+  cloudStatus.success && viteStatus.success && agentStatus.success ? 0 : 1,
+);

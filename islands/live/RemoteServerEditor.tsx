@@ -1,7 +1,11 @@
 import { useEffect, useState } from "preact/hooks";
 import AgentStatusBanner from "./AgentStatusBanner.tsx";
 import FeatureNav from "../../components/live/FeatureNav.tsx";
-import { loadActiveSession, loadStoredToken, useAgentSocket } from "./useAgentSocket.ts";
+import {
+  loadActiveSession,
+  loadStoredToken,
+  useAgentSocket,
+} from "./useAgentSocket.ts";
 import type { RemoteNetInfo } from "../../shared/types.ts";
 import Toast from "../../components/live/Toast.tsx";
 
@@ -9,7 +13,12 @@ interface Props {
   agentId: string;
 }
 
-const EMPTY: RemoteNetInfo = { enabled: false, ip: "0.0.0.0", port: 0, heartTime: 10 };
+const EMPTY: RemoteNetInfo = {
+  enabled: false,
+  ip: "0.0.0.0",
+  port: 0,
+  heartTime: 10,
+};
 
 export default function RemoteServerEditor({ agentId }: Props) {
   const [token, setToken] = useState<string | null>(null);
@@ -65,31 +74,52 @@ export default function RemoteServerEditor({ agentId }: Props) {
 
   return (
     <div class="space-y-4">
-      <AgentStatusBanner state={socket.state} agentConnected={socket.agentConnected} agentId={agentId} />
+      <AgentStatusBanner
+        state={socket.state}
+        agentConnected={socket.agentConnected}
+        agentId={agentId}
+      />
 
-      <FeatureNav agentId={agentId} active="remote_server" capabilities={session?.capabilities} />
+      <FeatureNav
+        agentId={agentId}
+        active="remote_server"
+        capabilities={session?.capabilities}
+      />
 
       {err && <Toast kind="error" message={err} onDismiss={() => setErr("")} />}
-      {okMsg && <Toast kind="success" message={okMsg} onDismiss={() => setOkMsg("")} />}
+      {okMsg && (
+        <Toast
+          kind="success"
+          message={okMsg}
+          onDismiss={() => setOkMsg("")}
+        />
+      )}
 
       <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm space-y-3">
         <h2 class="font-semibold text-gray-900">Remote server</h2>
         {current === null
           ? (
             <p class="text-sm text-gray-500">
-              {socket.agentConnected ? "Loading..." : "Open the connection from the device-info page first."}
+              {socket.agentConnected
+                ? "Loading..."
+                : "Open the connection from the device-info page first."}
             </p>
           )
           : (
             <>
               <p class="text-xs text-gray-500">
-                Where the reader pushes RFID access events. Enable + set IP / port / heartbeat.
+                Where the reader pushes RFID access events. Enable + set IP /
+                port / heartbeat.
               </p>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={draft.enabled}
-                  onChange={(e) => setDraft({ ...draft, enabled: (e.target as HTMLInputElement).checked })}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      enabled: (e.target as HTMLInputElement).checked,
+                    })}
                 />
                 <span class="text-sm font-medium text-gray-800">Enabled</span>
               </label>
@@ -98,7 +128,11 @@ export default function RemoteServerEditor({ agentId }: Props) {
                 <input
                   type="text"
                   value={draft.ip}
-                  onInput={(e) => setDraft({ ...draft, ip: (e.target as HTMLInputElement).value })}
+                  onInput={(e) =>
+                    setDraft({
+                      ...draft,
+                      ip: (e.target as HTMLInputElement).value,
+                    })}
                   placeholder="192.168.1.100"
                   class="w-full rounded-md border border-gray-200 px-2 py-1.5 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -111,7 +145,10 @@ export default function RemoteServerEditor({ agentId }: Props) {
                   onInput={(e) =>
                     setDraft({
                       ...draft,
-                      port: Number.parseInt((e.target as HTMLInputElement).value, 10) || 0,
+                      port: Number.parseInt(
+                        (e.target as HTMLInputElement).value,
+                        10,
+                      ) || 0,
                     })}
                   min={0}
                   max={65535}
@@ -126,7 +163,10 @@ export default function RemoteServerEditor({ agentId }: Props) {
                   onInput={(e) =>
                     setDraft({
                       ...draft,
-                      heartTime: Number.parseInt((e.target as HTMLInputElement).value, 10) || 0,
+                      heartTime: Number.parseInt(
+                        (e.target as HTMLInputElement).value,
+                        10,
+                      ) || 0,
                     })}
                   min={0}
                   max={255}
@@ -159,7 +199,13 @@ export default function RemoteServerEditor({ agentId }: Props) {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: preact.ComponentChildren }) {
+function Field(
+  { label, error, children }: {
+    label: string;
+    error?: string;
+    children: preact.ComponentChildren;
+  },
+) {
   return (
     <label class="block text-sm space-y-1">
       <span class="text-gray-700">{label}</span>
@@ -174,7 +220,9 @@ function validateIp(ip: string): string | undefined {
   if (parts.length !== 4) return "must be a dotted-quad IPv4 address";
   for (const p of parts) {
     const n = Number.parseInt(p, 10);
-    if (Number.isNaN(n) || n < 0 || n > 255 || String(n) !== p) return `octet "${p}" not 0-255`;
+    if (Number.isNaN(n) || n < 0 || n > 255 || String(n) !== p) {
+      return `octet "${p}" not 0-255`;
+    }
   }
   return undefined;
 }
@@ -192,14 +240,16 @@ function validateHeart(p: number): string | undefined {
 function NotPaired({ agentId }: { agentId: string }) {
   return (
     <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      This browser is not paired with agent <span class="font-mono">{agentId.substring(0, 8)}</span>.
-      {" "}
+      This browser is not paired with agent{" "}
+      <span class="font-mono">{agentId.substring(0, 8)}</span>.{" "}
       <a href="/live" class="underline font-semibold">Pair now →</a>
     </div>
   );
 }
 
 function describe(e: unknown): string {
-  if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
+  if (e && typeof e === "object" && "message" in e) {
+    return String((e as { message: unknown }).message);
+  }
   return String(e);
 }

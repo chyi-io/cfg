@@ -1,7 +1,19 @@
-import { assertEquals, assertExists, assert } from "https://deno.land/std@0.216.0/assert/mod.ts";
-import { parseCfgFile, generateCfgFile } from "../../vendors/teltonika/parser.ts";
+import {
+  assert,
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.216.0/assert/mod.ts";
+import {
+  generateCfgFile,
+  parseCfgFile,
+} from "../../vendors/teltonika/parser.ts";
 import { detectDeviceFamily } from "../../vendors/teltonika/detect.ts";
-import { _clearVendors, registerVendor, getVendor, buildStructuredConfig } from "../../lib/registry.ts";
+import {
+  _clearVendors,
+  buildStructuredConfig,
+  getVendor,
+  registerVendor,
+} from "../../lib/registry.ts";
 import { teltonikaPlugin } from "../../vendors/teltonika/mod.ts";
 
 const FIXTURES_DIR = new URL("../fixtures/", import.meta.url).pathname;
@@ -97,10 +109,27 @@ for (const file of Object.keys(EXPECTED_PARAM_COUNTS)) {
 // ── Key params present in all files ──────────────────────────────────
 
 const COMMON_KEY_PARAMS = [
-  "101", "102", "103", "104", "105", "106", "107", "108", "109", "110",
-  "1000", "1001", "1002", "1003",
-  "2000", "2001", "2004", "2005", "2006",
-  "3000", "3005",
+  "101",
+  "102",
+  "103",
+  "104",
+  "105",
+  "106",
+  "107",
+  "108",
+  "109",
+  "110",
+  "1000",
+  "1001",
+  "1002",
+  "1003",
+  "2000",
+  "2001",
+  "2004",
+  "2005",
+  "2006",
+  "3000",
+  "3005",
 ];
 
 for (const file of Object.keys(EXPECTED_PARAM_COUNTS)) {
@@ -156,7 +185,10 @@ Deno.test("[teltonika] 1.cfg (FMB) has fewer CAN adapter params than 3.cfg (FMC)
 
   const fmbCan = Object.keys(s1.can_adapter || {}).length;
   const fmcCan = Object.keys(s3.can_adapter || {}).length;
-  assert(fmcCan > fmbCan, `FMC CAN (${fmcCan}) should exceed FMB CAN (${fmbCan})`);
+  assert(
+    fmcCan > fmbCan,
+    `FMC CAN (${fmcCan}) should exceed FMB CAN (${fmbCan})`,
+  );
 });
 
 // ── Round-trip: parse → generate → re-parse ──────────────────────────

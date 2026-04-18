@@ -47,7 +47,9 @@ export class WsClient {
       try {
         await this.connectOnce();
       } catch (err) {
-        log.warn("ws.error", { message: err instanceof Error ? err.message : String(err) });
+        log.warn("ws.error", {
+          message: err instanceof Error ? err.message : String(err),
+        });
       }
       if (this.stopped) break;
       const wait = this.backoffMs + Math.floor(Math.random() * 500);
@@ -79,7 +81,9 @@ export class WsClient {
       };
 
       ws.onerror = (ev) => {
-        log.warn("ws.error", { event: (ev as ErrorEvent).message ?? "unknown" });
+        log.warn("ws.error", {
+          event: (ev as ErrorEvent).message ?? "unknown",
+        });
       };
 
       ws.onclose = () => {
@@ -103,7 +107,9 @@ export class WsClient {
     try {
       env = decode(data);
     } catch (err) {
-      log.warn("ws.parse_error", { message: err instanceof Error ? err.message : String(err) });
+      log.warn("ws.parse_error", {
+        message: err instanceof Error ? err.message : String(err),
+      });
       return;
     }
 
@@ -124,7 +130,10 @@ export class WsClient {
         return;
       }
       case "challenge": {
-        const sig = await hmacHex(this.config.agentKey, (env as ChallengeEnvelope).nonce);
+        const sig = await hmacHex(
+          this.config.agentKey,
+          (env as ChallengeEnvelope).nonce,
+        );
         const cr: ChallengeResponseEnvelope = {
           kind: "challenge_response",
           agentId: this.config.agentId,
@@ -135,10 +144,26 @@ export class WsClient {
       }
       case "req": {
         const req = env as ReqEnvelope;
-        const result = await this.dispatcher.dispatch(req.cmd, req.payload, req.traceId);
+        const result = await this.dispatcher.dispatch(
+          req.cmd,
+          req.payload,
+          req.traceId,
+        );
         const res: ResEnvelope = result.ok
-          ? { kind: "res", id: req.id, traceId: req.traceId, ok: true, data: result.data }
-          : { kind: "res", id: req.id, traceId: req.traceId, ok: false, error: result.error };
+          ? {
+            kind: "res",
+            id: req.id,
+            traceId: req.traceId,
+            ok: true,
+            data: result.data,
+          }
+          : {
+            kind: "res",
+            id: req.id,
+            traceId: req.traceId,
+            ok: false,
+            error: result.error,
+          };
         ws.send(encode(res));
         return;
       }

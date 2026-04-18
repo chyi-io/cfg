@@ -1,6 +1,7 @@
 # Adding a New Vendor
 
-This guide walks through adding a completely new vendor (e.g. "Queclink") to the configurator.
+This guide walks through adding a completely new vendor (e.g. "Queclink") to the
+configurator.
 
 ## Directory Structure
 
@@ -19,7 +20,8 @@ vendors/queclink/
 
 ## Step 1: Implement `parser.ts`
 
-Export two functions: `parse` (file buffer → flat config) and `generate` (flat config → file buffer).
+Export two functions: `parse` (file buffer → flat config) and `generate` (flat
+config → file buffer).
 
 ```ts
 import type { ParseResult } from "../../lib/types.ts";
@@ -59,13 +61,15 @@ export const generateQueclinkConfig = async (
 
 - `parse()` receives raw `Uint8Array` bytes (may need decompression)
 - Must return `{ success: true, config }` or `{ success: false, error }`
-- Config is always a flat `Record<string, string>` — even numeric values are stored as strings
+- Config is always a flat `Record<string, string>` — even numeric values are
+  stored as strings
 - `generate()` must produce the exact file format the device expects
 - Both functions are `async` to support streaming decompression
 
 ## Step 2: Implement `detect.ts`
 
-Determine which device variant a parsed config belongs to. This is called after a successful parse.
+Determine which device variant a parsed config belongs to. This is called after
+a successful parse.
 
 ```ts
 export const detectQueclinkDevice = (
@@ -86,7 +90,8 @@ export const detectQueclinkDevice = (
 
 ## Step 3: Implement `categories.ts`
 
-Define parameter categories for the sidebar navigation and a `categorizeParam` function.
+Define parameter categories for the sidebar navigation and a `categorizeParam`
+function.
 
 ```ts
 import type { CategoryDef } from "../../lib/types.ts";
@@ -132,27 +137,30 @@ export const categorizeParam = (paramId: number): string => {
 
 ### Category Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | Unique key, used in `categorizeParam` return values |
-| `label` | `string` | Display name in the sidebar |
-| `icon` | `string` | Emoji or icon string |
-| `color` | `string` | Tailwind CSS classes for badge styling |
-| `order` | `number` | Sort order (lower = first) |
-| `deviceOnly` | `string?` | If set, only shown for this specific device |
+| Field        | Type      | Description                                         |
+| ------------ | --------- | --------------------------------------------------- |
+| `id`         | `string`  | Unique key, used in `categorizeParam` return values |
+| `label`      | `string`  | Display name in the sidebar                         |
+| `icon`       | `string`  | Emoji or icon string                                |
+| `color`      | `string`  | Tailwind CSS classes for badge styling              |
+| `order`      | `number`  | Sort order (lower = first)                          |
+| `deviceOnly` | `string?` | If set, only shown for this specific device         |
 
 ### Notes on `categorizeParam`
 
 - For **numeric-key** formats (like Teltonika), categorize by numeric range
-- For **string-key** formats (like Chafon INI), the category is looked up from `paramSchemas` instead, so `categorizeParam` can return `"other"` as a fallback
+- For **string-key** formats (like Chafon INI), the category is looked up from
+  `paramSchemas` instead, so `categorizeParam` can return `"other"` as a
+  fallback
 
 ## Step 4: Implement `schemas.ts`
 
-Define parameter schemas with Zod validation, dropdown options, and numeric ranges.
+Define parameter schemas with Zod validation, dropdown options, and numeric
+ranges.
 
 ```ts
 import { z } from "zod";
-import type { ParamSchema, ParamOption } from "../../lib/types.ts";
+import type { ParamOption, ParamSchema } from "../../lib/types.ts";
 
 interface RawDef {
   name: string;
@@ -169,7 +177,7 @@ const toParamSchema = (id: string, d: RawDef): ParamSchema => {
   let zodSchema;
   if (d.options?.length) {
     zodSchema = z.enum(
-      d.options.map((o) => o.value) as [string, ...string[]]
+      d.options.map((o) => o.value) as [string, ...string[]],
     );
   } else if (d.type === "number") {
     let s = z.coerce.number();
@@ -225,12 +233,12 @@ export const buildFallbackSchema = (paramId: string): ParamSchema =>
 
 ### Schema Fields
 
-| Field | Type | UI Effect |
-|-------|------|-----------|
-| `options` | `ParamOption[]` | Renders a `<select>` dropdown |
-| `hint` | `string` | Input placeholder text |
-| `min` / `max` | `number` | Shown as validation range, enforced by Zod |
-| `type` | `"string"` or `"number"` | Determines input type and Zod schema |
+| Field         | Type                     | UI Effect                                  |
+| ------------- | ------------------------ | ------------------------------------------ |
+| `options`     | `ParamOption[]`          | Renders a `<select>` dropdown              |
+| `hint`        | `string`                 | Input placeholder text                     |
+| `min` / `max` | `number`                 | Shown as validation range, enforced by Zod |
+| `type`        | `"string"` or `"number"` | Determines input type and Zod schema       |
 
 ### Enum Options
 
@@ -241,7 +249,8 @@ const OPT_PROTOCOL: ParamOption[] = [
 ];
 ```
 
-When `options` is present, the UI renders a dropdown. The `value` is what gets stored in the config; the `label` is what the user sees.
+When `options` is present, the UI renders a dropdown. The `value` is what gets
+stored in the config; the `label` is what the user sees.
 
 ## Step 5: Create device definition
 
@@ -279,8 +288,8 @@ export const gl300Device: DeviceDefinition = {
 Wire everything together into a `VendorPlugin`:
 
 ```ts
-import type { VendorPlugin, ParamSchema } from "../../lib/types.ts";
-import { parseQueclinkConfig, generateQueclinkConfig } from "./parser.ts";
+import type { ParamSchema, VendorPlugin } from "../../lib/types.ts";
+import { generateQueclinkConfig, parseQueclinkConfig } from "./parser.ts";
 import { detectQueclinkDevice } from "./detect.ts";
 import { categorizeParam } from "./categories.ts";
 import { buildFallbackSchema } from "./schemas.ts";
@@ -307,7 +316,8 @@ import { queclinkPlugin } from "./vendors/queclink/mod.ts";
 registerVendor(queclinkPlugin);
 ```
 
-That's it! The landing page, API routes, and config editor will automatically pick up the new vendor.
+That's it! The landing page, API routes, and config editor will automatically
+pick up the new vendor.
 
 ## Step 8: Add tests
 

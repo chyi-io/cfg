@@ -8,18 +8,28 @@ import type { Device, Driver, DriverHandlers, OpenParams } from "../types.ts";
 import type { ReaderLike } from "./reader_interface.ts";
 import { Reader } from "./reader.ts";
 import { MockReader } from "./mock_reader.ts";
-import { assertByte, assertIPv4, assertU16, bytesToHex, hexToBytes } from "../../../shared/validate.ts";
+import {
+  assertByte,
+  assertIPv4,
+  assertU16,
+  bytesToHex,
+  hexToBytes,
+} from "../../../shared/validate.ts";
 
 function shouldUseMock(): boolean {
   return Deno.env.get("CHYI_CFG_FFI") === "mock";
 }
 
-async function openImpl(params: OpenParams): Promise<Device> {
+function openImpl(params: OpenParams): Promise<Device> {
   const timeoutMs = params.timeoutMs ?? 3000;
   if (shouldUseMock()) {
-    return MockReader.openTcp(params.ip, params.port, timeoutMs);
+    return Promise.resolve(
+      MockReader.openTcp(params.ip, params.port, timeoutMs),
+    );
   }
-  return Reader.openTcp(params.ip, params.port, timeoutMs);
+  // Reader.openTcp is synchronous (returns a Reader directly), but the Driver
+  // interface requires a Promise return.
+  return Promise.resolve(Reader.openTcp(params.ip, params.port, timeoutMs));
 }
 
 const handlers: DriverHandlers = {
@@ -30,7 +40,9 @@ const handlers: DriverHandlers = {
     return { workMode: await (device as ReaderLike).getWorkMode() };
   },
   async "workmode.set"(device, p) {
-    await (device as ReaderLike).setWorkMode(assertByte(p.workMode, "workMode"));
+    await (device as ReaderLike).setWorkMode(
+      assertByte(p.workMode, "workMode"),
+    );
     return {};
   },
   async "remotenet.get"(device) {
@@ -46,13 +58,19 @@ const handlers: DriverHandlers = {
     return {};
   },
   async "whitelist.get"(device, p) {
-    const cards = await (device as ReaderLike).getWhitelist(p?.timeoutMs ?? 2000);
+    const cards = await (device as ReaderLike).getWhitelist(
+      p?.timeoutMs ?? 2000,
+    );
     return { cards: cards.map((c) => bytesToHex(c)) };
   },
   async "whitelist.set"(device, p) {
-    if (!Array.isArray(p.cards)) throw new Error("cards must be an array of hex strings");
+    if (!Array.isArray(p.cards)) {
+      throw new Error("cards must be an array of hex strings");
+    }
     const cards = p.cards.map((c, i) => {
-      if (typeof c !== "string") throw new Error(`cards[${i}]: expected hex string`);
+      if (typeof c !== "string") {
+        throw new Error(`cards[${i}]: expected hex string`);
+      }
       return hexToBytes(c);
     });
     const { uploaded } = await (device as ReaderLike).setWhitelist(cards);

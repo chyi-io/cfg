@@ -1,7 +1,19 @@
-import { assertEquals, assertExists, assert } from "https://deno.land/std@0.216.0/assert/mod.ts";
-import { parseChafonConfig, generateChafonConfig } from "../../vendors/chafon/parser.ts";
+import {
+  assert,
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.216.0/assert/mod.ts";
+import {
+  generateChafonConfig,
+  parseChafonConfig,
+} from "../../vendors/chafon/parser.ts";
 import { detectChafonDevice } from "../../vendors/chafon/detect.ts";
-import { _clearVendors, registerVendor, getVendor, buildStructuredConfig } from "../../lib/registry.ts";
+import {
+  _clearVendors,
+  buildStructuredConfig,
+  getVendor,
+  registerVendor,
+} from "../../lib/registry.ts";
 import { chafonPlugin } from "../../vendors/chafon/mod.ts";
 
 const FIXTURES_DIR = new URL("../fixtures/", import.meta.url).pathname;
@@ -44,18 +56,53 @@ Deno.test("[chafon] parse INI - all expected keys present", async () => {
 
   const expectedKeys = [
     // Basic
-    "Baud", "Power", "Addr", "Region", "StartFreq", "EndFreq",
-    "IsPointFreq", "Workmode", "Port", "Area", "Startaddr", "DataLen",
-    "Filtertime", "Triggletime", "Q", "Session", "WiegandMode",
-    "WieggendOutMode", "IntenelTime(*100mS)", "IsBuzzer",
+    "Baud",
+    "Power",
+    "Addr",
+    "Region",
+    "StartFreq",
+    "EndFreq",
+    "IsPointFreq",
+    "Workmode",
+    "Port",
+    "Area",
+    "Startaddr",
+    "DataLen",
+    "Filtertime",
+    "Triggletime",
+    "Q",
+    "Session",
+    "WiegandMode",
+    "WieggendOutMode",
+    "IntenelTime(*100mS)",
+    "IsBuzzer",
     // Antenna
-    "Ant1", "AntPower1", "Ant2", "AntPower2", "Ant3", "AntPower3", "Ant4", "AntPower4",
+    "Ant1",
+    "AntPower1",
+    "Ant2",
+    "AntPower2",
+    "Ant3",
+    "AntPower3",
+    "Ant4",
+    "AntPower4",
     // Advanced
-    "PasswordEnable", "PasswordHEX", "MaskEnabled", "StartAddr", "MaskLen",
-    "MaskData", "Condition", "ConditionIndex", "ProtocolEnable",
-    "ProrocolType", "ProrocolTypeIndex", "CacheEnable",
+    "PasswordEnable",
+    "PasswordHEX",
+    "MaskEnabled",
+    "StartAddr",
+    "MaskLen",
+    "MaskData",
+    "Condition",
+    "ConditionIndex",
+    "ProtocolEnable",
+    "ProrocolType",
+    "ProrocolTypeIndex",
+    "CacheEnable",
     // Remote
-    "IsEnable", "RemoteIP", "RemotePort", "HeartbeatTime",
+    "IsEnable",
+    "RemoteIP",
+    "RemotePort",
+    "HeartbeatTime",
   ];
 
   for (const key of expectedKeys) {
@@ -183,7 +230,9 @@ Deno.test("[chafon] generated INI has correct section headers in order", async (
 // ── Reject non-Chafon content ────────────────────────────────────────
 
 Deno.test("[chafon] parseChafonConfig rejects non-INI content", async () => {
-  const garbage = new TextEncoder().encode("this is not an INI file\nno sections here\n");
+  const garbage = new TextEncoder().encode(
+    "this is not an INI file\nno sections here\n",
+  );
   const result = await parseChafonConfig(garbage);
   assertEquals(result.success, false);
 });

@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Chyi Hardware Configurator is a multi-vendor IoT configuration editor built on **Deno Fresh 2.x** with a plugin-based architecture. Each vendor is a self-contained module that registers itself with a central registry.
+The Chyi Hardware Configurator is a multi-vendor IoT configuration editor built
+on **Deno Fresh 2.x** with a plugin-based architecture. Each vendor is a
+self-contained module that registers itself with a central registry.
 
 ## Core Concepts
 
@@ -26,6 +28,7 @@ Plugins are registered at startup in `main.ts` via `registerVendor()`.
 ### Device Definitions
 
 Each device has:
+
 - **paramSchemas** — `Record<string, ParamSchema>` defining all known parameters
 - **categories** — Ordered list of `CategoryDef` for sidebar grouping
 - **defaults** — Default config values for "Create New" flow
@@ -33,6 +36,7 @@ Each device has:
 ### Parameter Schemas
 
 `ParamSchema` includes:
+
 - `type`: `"string"` | `"number"`
 - `options`: Enum values (rendered as `<select>`)
 - `min` / `max`: Numeric range constraints
@@ -46,20 +50,25 @@ Zod schemas are generated dynamically from `ParamSchema` in `lib/validation.ts`.
 - `registerVendor(plugin)` — Adds vendor to global map
 - `getVendor(id)` — Lookup by ID
 - `listVendors()` — All registered vendors
-- `detectVendorFromFile(buffer, filename)` — Tries each vendor's parser + detector
-- `buildStructuredConfig(vendor, config)` — Groups flat config into `{ [category]: { [paramId]: value } }`
+- `detectVendorFromFile(buffer, filename)` — Tries each vendor's parser +
+  detector
+- `buildStructuredConfig(vendor, config)` — Groups flat config into
+  `{ [category]: { [paramId]: value } }`
 - `getAllVendorParamIds(vendor)` — Superset of param IDs across all devices
 
 ### Validation (`lib/validation.ts`)
 
 - `validateParam(schema, value)` — Single param validation via Zod
 - `validateConfig(vendor, device, config)` — Full config validation
-- `buildFullVendorConfig(vendor, device, config)` — Merges all vendor params (incompatible ones get empty string)
-- `serializeAllParamMetas(vendor, device, config)` — Produces `ParamMeta` objects for the client, with `compatible` flag
+- `buildFullVendorConfig(vendor, device, config)` — Merges all vendor params
+  (incompatible ones get empty string)
+- `serializeAllParamMetas(vendor, device, config)` — Produces `ParamMeta`
+  objects for the client, with `compatible` flag
 
 ## Data Flow
 
 ### Upload Flow
+
 ```
 User drops file → POST /api/upload
   → detectVendorFromFile() tries each vendor parser
@@ -71,6 +80,7 @@ User drops file → POST /api/upload
 ```
 
 ### Create New Flow
+
 ```
 User clicks device card → GET /api/defaults?vendor=&device=
   → buildFullVendorConfig() with device defaults
@@ -78,6 +88,7 @@ User clicks device card → GET /api/defaults?vendor=&device=
 ```
 
 ### Download Flow
+
 ```
 User clicks Download → POST /api/download
   → validateConfig() checks all params via Zod
@@ -96,7 +107,9 @@ ConfigEditor (island — state owner)
 └── BottomBar (component — status + download)
 ```
 
-Shared types live in `components/types.ts`. The `ConfigEditor` island owns all state (config, validation errors, search, active category) and passes callbacks down.
+Shared types live in `components/types.ts`. The `ConfigEditor` island owns all
+state (config, validation errors, search, active category) and passes callbacks
+down.
 
 ## Adding a New Vendor
 
@@ -105,7 +118,8 @@ Shared types live in `components/types.ts`. The `ConfigEditor` island owns all s
    - `parser.ts` — `parse(buffer)` and `generate(config)` functions
    - `detect.ts` — `detectDevice(config)` function
    - `categories.ts` — Category definitions and `categorizeParam()`
-   - `schemas.ts` — Parameter schemas with `toParamSchema()` and `buildFallbackSchema()`
+   - `schemas.ts` — Parameter schemas with `toParamSchema()` and
+     `buildFallbackSchema()`
    - `devices/<device>.ts` — Device definition with paramSchemas and defaults
    - `mod.ts` — Export `VendorPlugin` object
 3. **Register** in `main.ts`: `registerVendor(myPlugin)`
@@ -122,6 +136,7 @@ deno task test:watch    # Watch mode
 ```
 
 Test organization:
+
 - `tests/registry_test.ts` — Registry, detection, structured config
 - `tests/validation_test.ts` — Zod validation, serialization
 - `tests/teltonika/` — Teltonika-specific parser/category tests

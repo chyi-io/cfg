@@ -1,11 +1,16 @@
 import { assertEquals } from "https://deno.land/std@0.216.0/assert/mod.ts";
 import {
-  validateParam,
-  validateConfig,
-  serializeParamMeta,
   serializeAllParamMetas,
+  serializeParamMeta,
+  validateConfig,
+  validateParam,
 } from "../lib/validation.ts";
-import { _clearVendors, registerVendor, getVendor, getDeviceDefinition } from "../lib/registry.ts";
+import {
+  _clearVendors,
+  getDeviceDefinition,
+  getVendor,
+  registerVendor,
+} from "../lib/registry.ts";
 import { teltonikaPlugin } from "../vendors/teltonika/mod.ts";
 
 const setup = () => {

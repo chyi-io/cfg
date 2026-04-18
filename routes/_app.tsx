@@ -1,4 +1,6 @@
-export default function App({ Component }: { Component: preact.FunctionComponent }) {
+export default function App(
+  { Component }: { Component: preact.FunctionComponent },
+) {
   return (
     <html>
       <head>

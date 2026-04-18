@@ -8,7 +8,9 @@ const allRawDefs = { ...staticDefs, ...generatePatternDefs() };
 
 const paramSchemas = Object.fromEntries(
   Object.entries(allRawDefs)
-    .filter(([, d]) => d.category !== "can_adapter" && d.category !== "obd_pids")
+    .filter(([, d]) =>
+      d.category !== "can_adapter" && d.category !== "obd_pids"
+    )
     .map(([id, d]) => [id, toParamSchema(id, d)]),
 );
 

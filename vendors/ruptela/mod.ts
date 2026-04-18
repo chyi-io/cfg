@@ -1,5 +1,5 @@
-import type { VendorPlugin, ParamSchema } from "../../lib/types.ts";
-import { parseRuptelaConfig, generateRuptelaConfig } from "./parser.ts";
+import type { ParamSchema, VendorPlugin } from "../../lib/types.ts";
+import { generateRuptelaConfig, parseRuptelaConfig } from "./parser.ts";
 import { detectRuptelaDevice } from "./detect.ts";
 import { categorizeParam } from "./categories.ts";
 import { buildFallbackSchema } from "./schemas.ts";

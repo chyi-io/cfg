@@ -1,5 +1,5 @@
-import type { VendorPlugin, ParamSchema } from "../../lib/types.ts";
-import { parseChafonConfig, generateChafonConfig } from "./parser.ts";
+import type { ParamSchema, VendorPlugin } from "../../lib/types.ts";
+import { generateChafonConfig, parseChafonConfig } from "./parser.ts";
 import { detectChafonDevice } from "./detect.ts";
 import { categorizeParam } from "./categories.ts";
 import { buildFallbackSchema } from "./schemas.ts";

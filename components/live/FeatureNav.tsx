@@ -17,9 +17,24 @@ interface Item {
 
 const ITEMS: Item[] = [
   { key: "info", label: "Device info", path: "" },
-  { key: "work_mode", label: "Work mode", path: "/work_mode", cap: "work_mode" },
-  { key: "remote_server", label: "Remote server", path: "/remote_server", cap: "remote_server" },
-  { key: "whitelist", label: "Whitelist", path: "/whitelist", cap: "whitelist" },
+  {
+    key: "work_mode",
+    label: "Work mode",
+    path: "/work_mode",
+    cap: "work_mode",
+  },
+  {
+    key: "remote_server",
+    label: "Remote server",
+    path: "/remote_server",
+    cap: "remote_server",
+  },
+  {
+    key: "whitelist",
+    label: "Whitelist",
+    path: "/whitelist",
+    cap: "whitelist",
+  },
 ];
 
 export default function FeatureNav({ agentId, active, capabilities }: Props) {
@@ -28,7 +43,9 @@ export default function FeatureNav({ agentId, active, capabilities }: Props) {
   // "open the connection first" message on the target page.
   const caps = capabilities ?? [];
   const knowsCaps = capabilities !== undefined && capabilities.length > 0;
-  const items = ITEMS.filter((i) => !i.cap || !knowsCaps || caps.includes(i.cap));
+  const items = ITEMS.filter((i) =>
+    !i.cap || !knowsCaps || caps.includes(i.cap)
+  );
 
   return (
     <nav class="flex flex-wrap gap-1 rounded-lg bg-white border border-gray-200 p-1 shadow-sm">

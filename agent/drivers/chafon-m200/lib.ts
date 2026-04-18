@@ -74,21 +74,27 @@ const SET_DEVICE_PARA_J_PARAMS = [
   ...Array.from({ length: 25 }, () => "u8" as const),
 ] as const;
 
-let _lib: Deno.DynamicLibrary<Record<string, Deno.ForeignFunction>> | null = null;
+let _lib: Deno.DynamicLibrary<Record<string, Deno.ForeignFunction>> | null =
+  null;
 
 function open() {
   if (_lib) return _lib;
   const path = resolveLibPath();
   try {
     _lib = Deno.dlopen(path, {
-      OpenNetConnection: { parameters: ["buffer", "buffer", "u16", "i64"], result: "i32" },
+      OpenNetConnection: {
+        parameters: ["buffer", "buffer", "u16", "i64"],
+        result: "i32",
+      },
       CloseDevice: { parameters: ["i64"], result: "i32" },
       GetDeviceInfo: { parameters: ["i64", "buffer"], result: "i32" },
       GetDevicePara: { parameters: ["i64", "buffer"], result: "i32" },
       SetDevicePara_J: { parameters: SET_DEVICE_PARA_J_PARAMS, result: "i32" },
       GetRemoteNetInfo: { parameters: ["i64", "buffer"], result: "i32" },
       SetRemoteNetInfo: {
-        parameters: ["i64", { struct: ["u8", "u8", "u8", "u8", "u8", "u8", "u8", "u8"] }],
+        parameters: ["i64", {
+          struct: ["u8", "u8", "u8", "u8", "u8", "u8", "u8", "u8"],
+        }],
         result: "i32",
       },
       BeginWhiteList: { parameters: ["i64", "u8", "u16"], result: "i32" },

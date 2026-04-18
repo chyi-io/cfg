@@ -1,20 +1,23 @@
 # Adding a New Device
 
-This guide shows how to add a new device variant to a vendor that already exists (e.g. adding FMM to Teltonika).
+This guide shows how to add a new device variant to a vendor that already exists
+(e.g. adding FMM to Teltonika).
 
 ## Overview
 
-A **device** is a hardware variant within a vendor. For example, Teltonika has FMB and FMC series. Each device can have its own set of supported parameters while sharing the same parser, generator, and category definitions.
+A **device** is a hardware variant within a vendor. For example, Teltonika has
+FMB and FMC series. Each device can have its own set of supported parameters
+while sharing the same parser, generator, and category definitions.
 
 ### Device vs Vendor
 
-| | Vendor | Device |
-|--|--------|--------|
-| Parser/Generator | Shared across devices | Uses vendor's parser |
-| Categories | Can be shared or device-specific | References vendor or own categories |
-| Param Schemas | — | Own set of supported parameters |
-| Defaults | — | Own default values |
-| Detection | — | Identified by `detectDevice()` |
+|                  | Vendor                           | Device                              |
+| ---------------- | -------------------------------- | ----------------------------------- |
+| Parser/Generator | Shared across devices            | Uses vendor's parser                |
+| Categories       | Can be shared or device-specific | References vendor or own categories |
+| Param Schemas    | —                                | Own set of supported parameters     |
+| Defaults         | —                                | Own default values                  |
+| Detection        | —                                | Identified by `detectDevice()`      |
 
 ## Step 1: Create the device definition file
 
@@ -68,8 +71,8 @@ export const teltonikaPlugin: VendorPlugin = {
   getParamSchema: (deviceId: string, paramId: string): ParamSchema => {
     const device = [fmbDevice, fmcDevice, fmmDevice]
       .find((d) => d.id === deviceId);
-    return device?.paramSchemas[paramId]
-      ?? buildFallbackSchema(paramId);
+    return device?.paramSchemas[paramId] ??
+      buildFallbackSchema(paramId);
   },
 };
 ```
@@ -82,9 +85,9 @@ In `detect.ts`, add logic to identify the new device:
 export const detectDeviceFamily = (
   config: Record<string, string>,
 ): string => {
-  if (config["99999"]) return "fmm";  // unique FMM param
-  if (config["30000"]) return "fmc";   // CAN adapter = FMC
-  return "fmb";                        // default
+  if (config["99999"]) return "fmm"; // unique FMM param
+  if (config["30000"]) return "fmc"; // CAN adapter = FMC
+  return "fmb"; // default
 };
 ```
 
@@ -97,18 +100,21 @@ export const detectDeviceFamily = (
 
 ## Step 4: Understand Device Compatibility
 
-When a vendor has multiple devices, the UI shows **all** vendor parameters. This is how it works:
+When a vendor has multiple devices, the UI shows **all** vendor parameters. This
+is how it works:
 
-1. `buildFullVendorConfig()` collects param IDs from **all** devices via `getAllVendorParamIds()`
-2. Parameters in the selected device's `paramSchemas` are marked `compatible: true`
+1. `buildFullVendorConfig()` collects param IDs from **all** devices via
+   `getAllVendorParamIds()`
+2. Parameters in the selected device's `paramSchemas` are marked
+   `compatible: true`
 3. Parameters from other devices are marked `compatible: false`
 
 ### UI Behavior
 
-| State | Appearance | Editable | Included in Download |
-|-------|-----------|----------|---------------------|
-| Compatible | Normal | Yes | Yes |
-| Incompatible | Greyed out, "incompatible" badge | No | No |
+| State        | Appearance                       | Editable | Included in Download |
+| ------------ | -------------------------------- | -------- | -------------------- |
+| Compatible   | Normal                           | Yes      | Yes                  |
+| Incompatible | Greyed out, "incompatible" badge | No       | No                   |
 
 ### Sidebar Behavior
 
@@ -122,7 +128,8 @@ Teltonika FMC has 1,528 all compatible (it's the superset device).
 
 ## Step 5: Device-Specific Categories
 
-If the new device needs different categories, you can define device-specific ones:
+If the new device needs different categories, you can define device-specific
+ones:
 
 ```ts
 import { baseTeltonikaCategories } from "../categories.ts";
@@ -135,12 +142,13 @@ const fmmCategories = [
     icon: "📶",
     color: "bg-indigo-100 text-indigo-700",
     order: 20,
-    deviceOnly: "fmm",  // only shown for FMM
+    deviceOnly: "fmm", // only shown for FMM
   },
 ];
 ```
 
-The `deviceOnly` field on a `CategoryDef` indicates it should only appear for a specific device variant.
+The `deviceOnly` field on a `CategoryDef` indicates it should only appear for a
+specific device variant.
 
 ## Step 6: Add tests
 
@@ -154,7 +162,8 @@ Test the new device's:
 
 ## Checklist
 
-- [ ] `vendors/<vendor>/devices/<id>.ts` — device definition with paramSchemas and defaults
+- [ ] `vendors/<vendor>/devices/<id>.ts` — device definition with paramSchemas
+      and defaults
 - [ ] `vendors/<vendor>/mod.ts` — add to `devices` array and `getParamSchema`
 - [ ] `vendors/<vendor>/detect.ts` — detection logic for the new device
 - [ ] Tests for defaults, schemas, detection, and compatibility

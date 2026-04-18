@@ -63,18 +63,18 @@ for (const [paramId, value] of VALID_VALUES) {
 // ── Invalid values fail Zod ──────────────────────────────────────────
 
 const INVALID_VALUES: [string, string][] = [
-  ["Baud", "12345"],       // Not in baud options
-  ["Region", "Mars"],      // Not a valid region
-  ["Power", "50"],         // Exceeds max 33
-  ["Power", "-1"],         // Below min 0
-  ["Q", "16"],             // Exceeds max 15
-  ["RemotePort", "0"],     // Below min 1
+  ["Baud", "12345"], // Not in baud options
+  ["Region", "Mars"], // Not a valid region
+  ["Power", "50"], // Exceeds max 33
+  ["Power", "-1"], // Below min 0
+  ["Q", "16"], // Exceeds max 15
+  ["RemotePort", "0"], // Below min 1
   ["RemotePort", "70000"], // Exceeds max 65535
-  ["Workmode", "Sleep"],   // Not a valid mode
-  ["Session", "S5"],       // Not a valid session
-  ["Ant1", "Maybe"],       // Not True/False
-  ["DataLen", "0"],        // Below min 1
-  ["DataLen", "33"],       // Exceeds max 32
+  ["Workmode", "Sleep"], // Not a valid mode
+  ["Session", "S5"], // Not a valid session
+  ["Ant1", "Maybe"], // Not True/False
+  ["DataLen", "0"], // Below min 1
+  ["DataLen", "33"], // Exceeds max 32
 ];
 
 for (const [paramId, value] of INVALID_VALUES) {

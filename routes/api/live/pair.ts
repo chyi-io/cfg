@@ -34,9 +34,12 @@ export const handler = define.handlers({
     if (normalized.length !== 8) {
       return jsonResponse({ error: "code format invalid" }, 400);
     }
-    const formatted = `${normalized.substring(0, 4)}-${normalized.substring(4)}`;
+    const formatted = `${normalized.substring(0, 4)}-${
+      normalized.substring(4)
+    }`;
 
-    const agentId = await consumePairCode(formatted) ?? await consumePairCode(normalized);
+    const agentId = await consumePairCode(formatted) ??
+      await consumePairCode(normalized);
     if (!agentId) {
       return jsonResponse({ error: "code invalid or expired" }, 404);
     }

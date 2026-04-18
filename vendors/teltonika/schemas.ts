@@ -134,14 +134,25 @@ export const buildFallbackSchema = (paramId: string): ParamSchema => {
   }
 
   const catLabels: Record<string, string> = {
-    system: "System", gprs_server: "GPRS / Server", network: "Network",
-    data_acquisition: "Data Acquisition", io_elements: "I/O Elements",
-    io_settings: "I/O Settings", scenario_io: "Scenario / IO",
-    device_behavior: "Device Behavior", sms_data_sending: "SMS / Data",
-    features: "Features", obd_can: "OBD / CAN", bluetooth: "Bluetooth",
-    authorized_numbers: "Auth Numbers", trip_odometer: "Trip / Odometer",
-    accelerometer: "Accelerometer", can_adapter: "CAN Adapter",
-    obd_pids: "OBD PIDs", advanced: "Advanced", other: "Other",
+    system: "System",
+    gprs_server: "GPRS / Server",
+    network: "Network",
+    data_acquisition: "Data Acquisition",
+    io_elements: "I/O Elements",
+    io_settings: "I/O Settings",
+    scenario_io: "Scenario / IO",
+    device_behavior: "Device Behavior",
+    sms_data_sending: "SMS / Data",
+    features: "Features",
+    obd_can: "OBD / CAN",
+    bluetooth: "Bluetooth",
+    authorized_numbers: "Auth Numbers",
+    trip_odometer: "Trip / Odometer",
+    accelerometer: "Accelerometer",
+    can_adapter: "CAN Adapter",
+    obd_pids: "OBD PIDs",
+    advanced: "Advanced",
+    other: "Other",
   };
   const label = catLabels[category] || "Other";
 

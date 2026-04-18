@@ -1,6 +1,7 @@
 # Testing
 
-The project uses Deno's built-in test runner with assertions from the standard library.
+The project uses Deno's built-in test runner with assertions from the standard
+library.
 
 ## Running Tests
 
@@ -42,7 +43,7 @@ tests/
 
 ```ts
 import { assertEquals, assertExists } from "$std/assert/mod.ts";
-import { registerVendor, _clearVendors } from "../lib/registry.ts";
+import { _clearVendors, registerVendor } from "../lib/registry.ts";
 import { teltonikaPlugin } from "../vendors/teltonika/mod.ts";
 
 Deno.test("my test group", async (t) => {
@@ -116,7 +117,9 @@ Deno.test("detects FMC from CAN params", () => {
 
 ## Test Fixtures
 
-Sample config files live in `tests/fixtures/`. These are **sanitized** copies of real device configs with sensitive data (server IPs, IMEIs, etc.) replaced with dummy values.
+Sample config files live in `tests/fixtures/`. These are **sanitized** copies of
+real device configs with sensitive data (server IPs, IMEIs, etc.) replaced with
+dummy values.
 
 ### Creating Fixtures
 

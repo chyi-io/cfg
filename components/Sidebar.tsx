@@ -55,7 +55,8 @@ const Sidebar = ({
               type="text"
               placeholder="Search parameters..."
               value={searchQuery}
-              onInput={(e) => onSearchChange((e.target as HTMLInputElement).value)}
+              onInput={(e) =>
+                onSearchChange((e.target as HTMLInputElement).value)}
               class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -65,7 +66,9 @@ const Sidebar = ({
             {categories.map((cat) => {
               const catParams = Object.keys(structured[cat.id] ?? {});
               const paramCount = catParams.length;
-              const incompatCount = catParams.filter((id) => !getMeta(id).compatible).length;
+              const incompatCount = catParams.filter((id) =>
+                !getMeta(id).compatible
+              ).length;
               const errCount = errorsByCategory(cat.id);
               const isActive = activeCategory === cat.id;
 
@@ -82,11 +85,16 @@ const Sidebar = ({
                 >
                   <span class="text-base flex-shrink-0">{cat.icon}</span>
                   <span class="flex-1 truncate font-medium">{cat.label}</span>
-                  <span class={`text-[10px] px-1.5 py-0.5 rounded-full ${cat.color}`}>
+                  <span
+                    class={`text-[10px] px-1.5 py-0.5 rounded-full ${cat.color}`}
+                  >
                     {paramCount}
                   </span>
                   {incompatCount > 0 && incompatCount === paramCount && (
-                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-bold" title="All params incompatible with this device">
+                    <span
+                      class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-bold"
+                      title="All params incompatible with this device"
+                    >
                       N/A
                     </span>
                   )}

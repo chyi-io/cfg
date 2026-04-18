@@ -8,7 +8,10 @@ export default define.page((ctx) => {
       <div class="container mx-auto px-4 py-10 max-w-2xl space-y-4">
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold text-gray-900">Live Device</h1>
-          <a href={`/live/${agentId}`} class="text-sm text-gray-500 hover:text-blue-600 underline">
+          <a
+            href={`/live/${agentId}`}
+            class="text-sm text-gray-500 hover:text-blue-600 underline"
+          >
             ← Dashboard
           </a>
         </div>

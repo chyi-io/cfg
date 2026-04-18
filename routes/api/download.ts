@@ -1,4 +1,4 @@
-import { getVendor, getDeviceDefinition } from "../../lib/registry.ts";
+import { getDeviceDefinition, getVendor } from "../../lib/registry.ts";
 import { validateConfig } from "../../lib/validation.ts";
 import { jsonResponse as json } from "../../lib/http.ts";
 import { define } from "../../utils.ts";

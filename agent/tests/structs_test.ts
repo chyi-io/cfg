@@ -51,8 +51,12 @@ Deno.test("RemoteNetInfo: pack → unpack round-trip", () => {
 });
 
 Deno.test("RemoteNetInfo: rejects invalid IP", () => {
-  assertThrows(() => packRemoteNetInfo({ enabled: true, ip: "not-an-ip", port: 1, heartTime: 1 }));
-  assertThrows(() => packRemoteNetInfo({ enabled: false, ip: "1.2.3", port: 1, heartTime: 1 }));
+  assertThrows(() =>
+    packRemoteNetInfo({ enabled: true, ip: "not-an-ip", port: 1, heartTime: 1 })
+  );
+  assertThrows(() =>
+    packRemoteNetInfo({ enabled: false, ip: "1.2.3", port: 1, heartTime: 1 })
+  );
 });
 
 Deno.test("Whitelist packet: packet index big-endian + per-slot encoding", () => {

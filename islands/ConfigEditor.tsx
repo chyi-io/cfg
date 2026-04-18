@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from "preact/hooks";
-import type { ParamMeta, CategoryDef } from "../components/types.ts";
+import { useCallback, useMemo, useState } from "preact/hooks";
+import type { CategoryDef, ParamMeta } from "../components/types.ts";
 import Sidebar from "../components/Sidebar.tsx";
 import CategoryPanel from "../components/CategoryPanel.tsx";
 import MessageBanner from "../components/MessageBanner.tsx";
@@ -30,14 +30,19 @@ export default function ConfigEditor({
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [downloading, setDownloading] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [searchQuery, setSearchQuery] = useState("");
 
   // Build ordered list of categories that have params
   const sortedCategories = useMemo(
-    () => [...categories]
-      .filter((c) => structured[c.id] && Object.keys(structured[c.id]).length > 0)
-      .sort((a, b) => a.order - b.order),
+    () =>
+      [...categories]
+        .filter((c) =>
+          structured[c.id] && Object.keys(structured[c.id]).length > 0
+        )
+        .sort((a, b) => a.order - b.order),
     [categories, structured],
   );
 
@@ -62,13 +67,18 @@ export default function ConfigEditor({
     [paramMetas],
   );
 
-  const validateValue = (paramId: string, value: string): string | undefined => {
+  const validateValue = (
+    paramId: string,
+    value: string,
+  ): string | undefined => {
     if (value === "") return undefined;
     const meta = getMeta(paramId);
     if (meta.options && meta.options.length > 0) {
       const allowed = meta.options.map((o) => o.value);
       if (!allowed.includes(value)) {
-        return `Accepted: ${meta.options.map((o) => `${o.value} (${o.label})`).join(", ")}`;
+        return `Accepted: ${
+          meta.options.map((o) => `${o.value} (${o.label})`).join(", ")
+        }`;
       }
     }
     if (meta.type === "number") {
@@ -181,13 +191,29 @@ export default function ConfigEditor({
               onClick={() => setSidebarOpen((p) => !p)}
               class="lg:hidden p-1.5 rounded-lg hover:bg-gray-100"
             >
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
-            <img src="/chyi-icon.png" alt="CHYI" class="w-8 h-8 flex-shrink-0" />
+            <img
+              src="/chyi-icon.png"
+              alt="CHYI"
+              class="w-8 h-8 flex-shrink-0"
+            />
             <div>
-              <h1 class="text-lg font-bold text-gray-800">Chyi Hardware Configurator</h1>
+              <h1 class="text-lg font-bold text-gray-800">
+                Chyi Hardware Configurator
+              </h1>
               <p class="text-xs text-gray-500">
                 {vendorLabel} {deviceLabel} &middot; {totalParams} parameters
               </p>
@@ -197,15 +223,29 @@ export default function ConfigEditor({
             href="/"
             class="text-sm text-gray-500 hover:text-blue-600 flex items-center gap-1 transition-colors"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Back
           </a>
         </div>
       </header>
 
-      <MessageBanner message={message} messageType={messageType} onDismiss={() => setMessage("")} />
+      <MessageBanner
+        message={message}
+        messageType={messageType}
+        onDismiss={() => setMessage("")}
+      />
 
       {/* Main layout: sidebar + content */}
       <div class="flex flex-1 overflow-hidden relative">

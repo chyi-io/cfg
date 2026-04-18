@@ -60,11 +60,19 @@ export class Reader implements ReaderLike {
     const handleArrBuf = new ArrayBuffer(8);
     const handleBytes = new Uint8Array(handleArrBuf);
     const ipBuf = cstr(ip);
-    const rc = cfapi().OpenNetConnection(handleBytes, ipBuf, port, BigInt(timeoutMs)) as number;
+    const rc = cfapi().OpenNetConnection(
+      handleBytes,
+      ipBuf,
+      port,
+      BigInt(timeoutMs),
+    ) as number;
     check(rc, `OpenNetConnection(${ip}:${port})`);
     const handle = new BigInt64Array(handleArrBuf)[0];
     if (handle === 0n) {
-      throw new ReaderError(0xffffff03, "OpenNetConnection returned NULL handle");
+      throw new ReaderError(
+        0xffffff03,
+        "OpenNetConnection returned NULL handle",
+      );
     }
     return new Reader(crypto.randomUUID(), handle);
   }
@@ -77,7 +85,9 @@ export class Reader implements ReaderLike {
       const rc = cfapi().CloseDevice(this.handle) as number;
       if (rc !== 0) {
         console.warn(
-          `[reader ${this.id}] CloseDevice returned 0x${(rc >>> 0).toString(16)}`,
+          `[reader ${this.id}] CloseDevice returned 0x${
+            (rc >>> 0).toString(16)
+          }`,
         );
       }
     });
@@ -185,12 +195,17 @@ export class Reader implements ReaderLike {
       for (let i = 0; i < cards.length; i++) {
         if (cards[i].length === 0 || cards[i].length > CARD_SLOT_SIZE - 1) {
           throw new Error(
-            `Invalid card #${i}: length ${cards[i].length} (must be 1..${CARD_SLOT_SIZE - 1})`,
+            `Invalid card #${i}: length ${cards[i].length} (must be 1..${
+              CARD_SLOT_SIZE - 1
+            })`,
           );
         }
       }
 
-      const packetCount = Math.max(1, Math.ceil(cards.length / MAX_CARDS_PER_PACKET));
+      const packetCount = Math.max(
+        1,
+        Math.ceil(cards.length / MAX_CARDS_PER_PACKET),
+      );
 
       const paraBefore = await this.getDevicePara_locked();
       const originalWorkMode = paraBefore.workMode;
@@ -201,7 +216,11 @@ export class Reader implements ReaderLike {
         }
 
         await ffiPause();
-        const beginRc = cfapi().BeginWhiteList(this.handle, 1, packetCount) as number;
+        const beginRc = cfapi().BeginWhiteList(
+          this.handle,
+          1,
+          packetCount,
+        ) as number;
         check(beginRc, "BeginWhiteList");
 
         for (let p = 0; p < packetCount; p++) {
@@ -212,7 +231,11 @@ export class Reader implements ReaderLike {
           if (slice.length === 0) continue;
           const packet = buildSetWhitelistPacket(p + 1, slice);
           await new Promise<void>((r) => setTimeout(r, 5));
-          const rc = cfapi().SetWhiteList(this.handle, packet.byteLength, packet) as number;
+          const rc = cfapi().SetWhiteList(
+            this.handle,
+            packet.byteLength,
+            packet,
+          ) as number;
           check(rc, `SetWhiteList(packet ${p + 1}/${packetCount})`);
         }
 
@@ -222,18 +245,25 @@ export class Reader implements ReaderLike {
         check(endRc, "EndWhiteList");
         const uploadedBE = (endBuf[0] << 8) | endBuf[1];
         const uploadedLE = (endBuf[1] << 8) | endBuf[0];
-        const reported = uploadedBE === cards.length || uploadedBE > cards.length
-          ? uploadedBE
-          : uploadedLE;
+        const reported =
+          uploadedBE === cards.length || uploadedBE > cards.length
+            ? uploadedBE
+            : uploadedLE;
 
         if (originalWorkMode !== 0) {
-          await this.setDevicePara_locked({ ...paraBefore, workMode: originalWorkMode });
+          await this.setDevicePara_locked({
+            ...paraBefore,
+            workMode: originalWorkMode,
+          });
         }
         return { uploaded: reported };
       } catch (err) {
         try {
           if (originalWorkMode !== 0) {
-            await this.setDevicePara_locked({ ...paraBefore, workMode: originalWorkMode });
+            await this.setDevicePara_locked({
+              ...paraBefore,
+              workMode: originalWorkMode,
+            });
           }
         } catch (_) {
           // swallow

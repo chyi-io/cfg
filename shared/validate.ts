@@ -38,7 +38,9 @@ export function assertBool(value: unknown, field: string): boolean {
 export function assertIPv4(value: unknown, field: string): string {
   const s = assertString(value, field);
   const parts = s.split(".");
-  if (parts.length !== 4) throw new Error(`Field ${field}: invalid IPv4 '${s}'`);
+  if (parts.length !== 4) {
+    throw new Error(`Field ${field}: invalid IPv4 '${s}'`);
+  }
   for (const p of parts) {
     const n = Number.parseInt(p, 10);
     if (Number.isNaN(n) || n < 0 || n > 255 || String(n) !== p) {
@@ -48,7 +50,11 @@ export function assertIPv4(value: unknown, field: string): string {
   return s;
 }
 
-export function assertHex(value: unknown, field: string, maxBytes = 31): string {
+export function assertHex(
+  value: unknown,
+  field: string,
+  maxBytes = 31,
+): string {
   const s = assertString(value, field);
   if (!/^[0-9a-fA-F]*$/.test(s)) {
     throw new Error(`Field ${field}: expected hex string`);
@@ -57,7 +63,9 @@ export function assertHex(value: unknown, field: string, maxBytes = 31): string 
     throw new Error(`Field ${field}: hex string must have even length`);
   }
   if (s.length / 2 > maxBytes) {
-    throw new Error(`Field ${field}: hex too long (${s.length / 2} > ${maxBytes} bytes)`);
+    throw new Error(
+      `Field ${field}: hex too long (${s.length / 2} > ${maxBytes} bytes)`,
+    );
   }
   return s.toUpperCase();
 }

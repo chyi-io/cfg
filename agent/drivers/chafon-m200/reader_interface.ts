@@ -1,4 +1,8 @@
-import type { DeviceFullInfo, DevicePara, RemoteNetInfo } from "../../../shared/types.ts";
+import type {
+  DeviceFullInfo,
+  DevicePara,
+  RemoteNetInfo,
+} from "../../../shared/types.ts";
 
 export interface ReaderLike {
   readonly id: string;

@@ -29,7 +29,12 @@ export type CommandName =
 
 export interface CommandPayloads {
   "drivers.list": Record<string, never>;
-  "connection.open": { driver: string; ip: string; port: number; timeoutMs?: number };
+  "connection.open": {
+    driver: string;
+    ip: string;
+    port: number;
+    timeoutMs?: number;
+  };
   "connection.close": Record<string, never>;
   "connection.info": Record<string, never>;
   "connection.status": Record<string, never>;
@@ -137,7 +142,10 @@ export function encode(e: Envelope): string {
 
 export function decode(s: string): Envelope {
   const e = JSON.parse(s) as Envelope;
-  if (typeof e !== "object" || e === null || typeof (e as { kind?: unknown }).kind !== "string") {
+  if (
+    typeof e !== "object" || e === null ||
+    typeof (e as { kind?: unknown }).kind !== "string"
+  ) {
     throw new Error("Invalid envelope: missing kind");
   }
   return e;

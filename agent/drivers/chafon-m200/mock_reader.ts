@@ -1,7 +1,11 @@
 // In-memory fake reader for dev/tests. Same public shape as Reader so the
 // dispatcher can use either transparently.
 
-import type { DeviceFullInfo, DevicePara, RemoteNetInfo } from "../../../shared/types.ts";
+import type {
+  DeviceFullInfo,
+  DevicePara,
+  RemoteNetInfo,
+} from "../../../shared/types.ts";
 import type { ReaderLike } from "./reader_interface.ts";
 import { ReaderError } from "../../../shared/errors.ts";
 
@@ -44,7 +48,12 @@ export class MockReader implements ReaderLike {
   private closed = false;
   private para: DevicePara = { ...DEFAULT_PARA };
   private info: DeviceFullInfo = { ...DEFAULT_INFO };
-  private remote: RemoteNetInfo = { enabled: false, ip: "0.0.0.0", port: 0, heartTime: 10 };
+  private remote: RemoteNetInfo = {
+    enabled: false,
+    ip: "0.0.0.0",
+    port: 0,
+    heartTime: 10,
+  };
   private whitelist: Uint8Array[] = [];
 
   static openTcp(ip: string, _port: number, _timeoutMs: number): MockReader {
@@ -63,7 +72,9 @@ export class MockReader implements ReaderLike {
   }
 
   private check(): void {
-    if (this.closed) throw new ReaderError(0xffffff17, `Reader ${this.id} is closed`);
+    if (this.closed) {
+      throw new ReaderError(0xffffff17, `Reader ${this.id} is closed`);
+    }
   }
 
   getDeviceInfo(): Promise<DeviceFullInfo> {

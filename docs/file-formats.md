@@ -14,14 +14,14 @@ Gzip-compressed text files with semicolon-delimited key:value pairs.
 
 ### Structure
 
-| Property | Value |
-|----------|-------|
-| **Compression** | Standard gzip |
-| **Encoding** | UTF-8 text |
-| **Delimiter** | Semicolon `;` between pairs |
-| **Separator** | Colon `:` between key and value |
-| **Keys** | Numeric parameter IDs (e.g. `2004`) |
-| **Values** | Strings (numbers, IPs, enums stored as text) |
+| Property        | Value                                        |
+| --------------- | -------------------------------------------- |
+| **Compression** | Standard gzip                                |
+| **Encoding**    | UTF-8 text                                   |
+| **Delimiter**   | Semicolon `;` between pairs                  |
+| **Separator**   | Colon `:` between key and value              |
+| **Keys**        | Numeric parameter IDs (e.g. `2004`)          |
+| **Values**      | Strings (numbers, IPs, enums stored as text) |
 
 ### Detection
 
@@ -30,24 +30,24 @@ Gzip-compressed text files with semicolon-delimited key:value pairs.
 
 ### Device Detection
 
-| Condition | Device |
-|-----------|--------|
-| CAN Adapter params present (30000+) | FMC |
-| Otherwise | FMB |
+| Condition                           | Device |
+| ----------------------------------- | ------ |
+| CAN Adapter params present (30000+) | FMC    |
+| Otherwise                           | FMB    |
 
 ### Parameter ID Ranges
 
-| Range | Category |
-|-------|----------|
-| 0–99 | System |
-| 100–199 | Security |
-| 200–299 | Sleep Mode |
-| 1000–1999 | Data Acquisition |
-| 2000–2099 | GPRS / Server |
-| 10000–10999 | I/O Settings |
-| 11000–11999 | Geofencing |
+| Range       | Category               |
+| ----------- | ---------------------- |
+| 0–99        | System                 |
+| 100–199     | Security               |
+| 200–299     | Sleep Mode             |
+| 1000–1999   | Data Acquisition       |
+| 2000–2099   | GPRS / Server          |
+| 10000–10999 | I/O Settings           |
+| 11000–11999 | Geofencing             |
 | 30000–30099 | CAN Adapter (FMC only) |
-| 50000–50049 | OBD PIDs (FMC only) |
+| 50000–50049 | OBD PIDs (FMC only)    |
 
 ---
 
@@ -66,14 +66,14 @@ ReportInterval=60
 
 ### Structure
 
-| Property | Value |
-|----------|-------|
-| **Compression** | None (plain text) |
-| **Encoding** | UTF-8 |
-| **Delimiter** | Newline between pairs |
-| **Separator** | Equals `=` between key and value |
-| **Keys** | Descriptive strings (e.g. `ServerDomain`) |
-| **Comments** | Lines starting with `#` or `;` are ignored |
+| Property        | Value                                      |
+| --------------- | ------------------------------------------ |
+| **Compression** | None (plain text)                          |
+| **Encoding**    | UTF-8                                      |
+| **Delimiter**   | Newline between pairs                      |
+| **Separator**   | Equals `=` between key and value           |
+| **Keys**        | Descriptive strings (e.g. `ServerDomain`)  |
+| **Comments**    | Lines starting with `#` or `;` are ignored |
 
 ### Detection
 
@@ -113,38 +113,39 @@ HeartbeatTime=232
 
 ### Structure
 
-| Property | Value |
-|----------|-------|
-| **Compression** | None (plain text) |
-| **Encoding** | UTF-8 |
-| **Sections** | `[Basic]`, `[Antenna]`, `[Advanced]`, `[Remote]` |
-| **Separator** | Equals `=` between key and value |
-| **Keys** | Descriptive strings, globally unique across sections |
+| Property        | Value                                                |
+| --------------- | ---------------------------------------------------- |
+| **Compression** | None (plain text)                                    |
+| **Encoding**    | UTF-8                                                |
+| **Sections**    | `[Basic]`, `[Antenna]`, `[Advanced]`, `[Remote]`     |
+| **Separator**   | Equals `=` between key and value                     |
+| **Keys**        | Descriptive strings, globally unique across sections |
 
 ### Detection
 
 - File extension `.ini`
-- Presence of known section headers: `[Basic]`, `[Antenna]`, `[Advanced]`, `[Remote]`
+- Presence of known section headers: `[Basic]`, `[Antenna]`, `[Advanced]`,
+  `[Remote]`
 
 ### Section → Category Mapping
 
-| INI Section | UI Category |
-|------------|-------------|
-| `[Basic]` | Basic |
-| `[Antenna]` | Antenna |
-| `[Advanced]` | Advanced |
-| `[Remote]` | Remote |
+| INI Section  | UI Category |
+| ------------ | ----------- |
+| `[Basic]`    | Basic       |
+| `[Antenna]`  | Antenna     |
+| `[Advanced]` | Advanced    |
+| `[Remote]`   | Remote      |
 
 ### Parameter Types
 
 Chafon uses typed values in the INI file:
 
-| Type | Example | UI Control |
-|------|---------|------------|
-| Boolean | `True` / `False` | Dropdown |
-| Numeric | `9600`, `33` | Number input with range |
-| String | `192.168.1.100` | Text input |
-| Enum | `Active Mode`, `USA` | Dropdown |
+| Type    | Example              | UI Control              |
+| ------- | -------------------- | ----------------------- |
+| Boolean | `True` / `False`     | Dropdown                |
+| Numeric | `9600`, `33`         | Number input with range |
+| String  | `192.168.1.100`      | Text input              |
+| Enum    | `Active Mode`, `USA` | Dropdown                |
 
 ---
 
@@ -153,10 +154,14 @@ Chafon uses typed values in the INI file:
 To support a new file format:
 
 1. Create `vendors/<name>/parser.ts` implementing `parse()` and `generate()`
-2. Handle compression/encoding as needed (use `DecompressionStream`/`CompressionStream` for gzip)
+2. Handle compression/encoding as needed (use
+   `DecompressionStream`/`CompressionStream` for gzip)
 3. Always return a flat `Record<string, string>` from `parse()`
-4. The `generate()` function must produce the exact binary format the device expects
-5. Add robust error handling — return `{ success: false, error: "..." }` for invalid files
+4. The `generate()` function must produce the exact binary format the device
+   expects
+5. Add robust error handling — return `{ success: false, error: "..." }` for
+   invalid files
 6. Add detection logic that distinguishes your format from others
 
-See the [Adding a Vendor](/docs/add-vendor) guide for the complete implementation walkthrough.
+See the [Adding a Vendor](/docs/add-vendor) guide for the complete
+implementation walkthrough.

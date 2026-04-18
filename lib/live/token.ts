@@ -1,4 +1,8 @@
-import { signBrowserToken, verifyBrowserToken, type BrowserTokenPayload } from "../../shared/pair.ts";
+import {
+  type BrowserTokenPayload,
+  signBrowserToken,
+  verifyBrowserToken,
+} from "../../shared/pair.ts";
 
 function serverSecret(): string {
   const s = Deno.env.get("CFG_SERVER_SECRET");
@@ -7,7 +11,10 @@ function serverSecret(): string {
   return "dev-only-insecure-secret-do-not-use-in-production-32b";
 }
 
-export async function sign(agentId: string, ttlMs = 24 * 60 * 60 * 1000): Promise<{
+export async function sign(
+  agentId: string,
+  ttlMs = 24 * 60 * 60 * 1000,
+): Promise<{
   token: string;
   exp: number;
 }> {

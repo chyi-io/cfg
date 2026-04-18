@@ -15,7 +15,9 @@ export default function Toast({ kind, message, onDismiss }: Props) {
     <div
       role="status"
       aria-live="polite"
-      class={`flex items-start gap-2 rounded-lg border px-3 py-2 text-sm ${PALETTE[kind]}`}
+      class={`flex items-start gap-2 rounded-lg border px-3 py-2 text-sm ${
+        PALETTE[kind]
+      }`}
     >
       <span class="flex-1 break-words">{message}</span>
       {onDismiss && (

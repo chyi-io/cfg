@@ -17,12 +17,18 @@ export default function PairForm() {
         body: JSON.stringify({ code }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        const body = await res.json().catch(() => ({
+          error: `HTTP ${res.status}`,
+        }));
         setErr(body.error ?? "pair failed");
         setBusy(false);
         return;
       }
-      const body = await res.json() as { token: string; exp: number; agentId: string };
+      const body = await res.json() as {
+        token: string;
+        exp: number;
+        agentId: string;
+      };
       storeToken(body);
       location.href = `/live/${body.agentId}`;
     } catch (e) {
@@ -38,7 +44,8 @@ export default function PairForm() {
         <input
           type="text"
           value={code}
-          onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())}
+          onInput={(e) =>
+            setCode((e.target as HTMLInputElement).value.toUpperCase())}
           placeholder="ABCD-EFGH"
           autoComplete="off"
           autoCapitalize="characters"
@@ -60,7 +67,8 @@ export default function PairForm() {
         {busy ? "Pairing..." : "Pair"}
       </button>
       <p class="text-xs text-gray-500">
-        The agent prints this code on startup. Codes expire 10 minutes after issuance.
+        The agent prints this code on startup. Codes expire 10 minutes after
+        issuance.
       </p>
     </form>
   );

@@ -55,16 +55,32 @@ async function runCmd(): Promise<number> {
     !Deno.args.includes("--force") &&
     await isSystemdUnitActive()
   ) {
-    console.error(term.fail("chyi-cfg-agent.service is already running under systemd."));
-    console.error(term.gray("  Two agents with the same agentId fight over the cloud connection;"));
-    console.error(term.gray("  browsers then get stuck on 'connecting...'. Stop the service first:"));
+    console.error(
+      term.fail("chyi-cfg-agent.service is already running under systemd."),
+    );
+    console.error(
+      term.gray(
+        "  Two agents with the same agentId fight over the cloud connection;",
+      ),
+    );
+    console.error(
+      term.gray(
+        "  browsers then get stuck on 'connecting...'. Stop the service first:",
+      ),
+    );
     console.error("");
     console.error("    systemctl --user stop chyi-cfg-agent.service");
     console.error("");
-    console.error(term.gray("  Or follow its logs without starting a second instance:"));
+    console.error(
+      term.gray("  Or follow its logs without starting a second instance:"),
+    );
     console.error("    chyi-cfg-agent logs");
     console.error("");
-    console.error(term.gray("  (pass --force to run anyway — expect pairing to be unstable.)"));
+    console.error(
+      term.gray(
+        "  (pass --force to run anyway — expect pairing to be unstable.)",
+      ),
+    );
     return 1;
   }
 
@@ -72,7 +88,11 @@ async function runCmd(): Promise<number> {
   if (firstRun) {
     welcomeBanner();
     console.log(term.yellow("  No config found — using defaults."));
-    console.log(term.gray("  Run `chyi-cfg-agent setup` for interactive first-time setup."));
+    console.log(
+      term.gray(
+        "  Run `chyi-cfg-agent setup` for interactive first-time setup.",
+      ),
+    );
     console.log("");
   }
 
@@ -87,7 +107,9 @@ async function runCmd(): Promise<number> {
       const base = stripAgentWsPath(wsUrlToHttp(config.cloudUrl));
       log.info("pair.code", { code, expiresAt });
       console.log("");
-      console.log(`  chyi-cfg-agent ready — pair at ${base}/live with code ${code}`);
+      console.log(
+        `  chyi-cfg-agent ready — pair at ${base}/live with code ${code}`,
+      );
       console.log(`  (code expires at ${new Date(expiresAt).toISOString()})`);
       console.log("");
     },

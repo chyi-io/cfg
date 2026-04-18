@@ -9,12 +9,29 @@
 // A BUSY cap (default 16 in-flight) prevents an unbounded queue. Per-device
 // mutual exclusion is the driver's responsibility (e.g. Reader.AsyncMutex).
 
-import type { CommandName, CommandPayloads, CommandResponses } from "../shared/protocol.ts";
-import { BUSY, type ErrorBody, NOT_OPEN, toErrorBody } from "../shared/errors.ts";
+import type {
+  CommandName,
+  CommandPayloads,
+  CommandResponses,
+} from "../shared/protocol.ts";
+import {
+  BUSY,
+  type ErrorBody,
+  NOT_OPEN,
+  toErrorBody,
+} from "../shared/errors.ts";
 import { assertIPv4, assertString, assertU16 } from "../shared/validate.ts";
 import { log } from "./log.ts";
-import type { Device, Driver, DriverCommand, DriverHandler } from "./drivers/types.ts";
-import { get as getDriver, listInfo as listDrivers } from "./drivers/registry.ts";
+import type {
+  Device,
+  Driver,
+  DriverCommand,
+  DriverHandler,
+} from "./drivers/types.ts";
+import {
+  get as getDriver,
+  listInfo as listDrivers,
+} from "./drivers/registry.ts";
 
 interface ActiveSession {
   driver: Driver;
@@ -38,7 +55,12 @@ class ReaderSession {
     return this.active;
   }
 
-  async open(driver: Driver, ip: string, port: number, timeoutMs: number): Promise<ActiveSession> {
+  async open(
+    driver: Driver,
+    ip: string,
+    port: number,
+    timeoutMs: number,
+  ): Promise<ActiveSession> {
     if (this.active && !this.active.device.isClosed()) {
       await this.active.device.close().catch(() => {});
     }
@@ -71,10 +93,16 @@ export class Dispatcher {
     const start = performance.now();
     try {
       const data = await this.route(cmd, payload);
-      log.info("cmd", { traceId, cmd, ok: true, ms: Math.round(performance.now() - start) });
+      log.info("cmd", {
+        traceId,
+        cmd,
+        ok: true,
+        ms: Math.round(performance.now() - start),
+      });
       return { ok: true, data };
     } catch (err) {
-      const body = (err as { __errorBody?: ErrorBody }).__errorBody ?? toErrorBody(err, traceId);
+      const body = (err as { __errorBody?: ErrorBody }).__errorBody ??
+        toErrorBody(err, traceId);
       log.warn("cmd", {
         traceId,
         cmd,
@@ -105,7 +133,10 @@ export class Dispatcher {
         const handler = a.driver.handlers["connection.info"];
         if (handler) {
           try {
-            info = await handler(a.device, {} as CommandPayloads["connection.info"]);
+            info = await handler(
+              a.device,
+              {} as CommandPayloads["connection.info"],
+            );
           } catch {
             // Status mustn't fail the whole status query.
           }
@@ -122,7 +153,9 @@ export class Dispatcher {
     }
   }
 
-  private async openConn(payload: unknown): Promise<CommandResponses["connection.open"]> {
+  private async openConn(
+    payload: unknown,
+  ): Promise<CommandResponses["connection.open"]> {
     const p = payload as CommandPayloads["connection.open"];
     const driverId = assertString(p?.driver, "driver");
     const driver = getDriver(driverId);
@@ -137,7 +170,10 @@ export class Dispatcher {
     let deviceInfo: unknown = {};
     const infoHandler = driver.handlers["connection.info"];
     if (infoHandler) {
-      deviceInfo = await infoHandler(session.device, {} as CommandPayloads["connection.info"]);
+      deviceInfo = await infoHandler(
+        session.device,
+        {} as CommandPayloads["connection.info"],
+      );
     }
     return {
       driver: driver.id,
@@ -146,9 +182,14 @@ export class Dispatcher {
     };
   }
 
-  private async routeDriver(cmd: DriverCommand, payload: unknown): Promise<unknown> {
+  private async routeDriver(
+    cmd: DriverCommand,
+    payload: unknown,
+  ): Promise<unknown> {
     const session = this.session.requireOpen();
-    const handler = session.driver.handlers[cmd] as DriverHandler<DriverCommand> | undefined;
+    const handler = session.driver.handlers[cmd] as
+      | DriverHandler<DriverCommand>
+      | undefined;
     if (!handler) {
       const err = new Error(
         `Driver "${session.driver.id}" does not support command "${cmd}"`,
@@ -161,7 +202,10 @@ export class Dispatcher {
       };
       throw err;
     }
-    return await handler(session.device, payload as CommandPayloads[DriverCommand]);
+    return await handler(
+      session.device,
+      payload as CommandPayloads[DriverCommand],
+    );
   }
 
   async shutdown(): Promise<void> {

@@ -1,7 +1,7 @@
 import type {
-  VendorPlugin,
   DeviceDefinition,
   StructuredConfig,
+  VendorPlugin,
 } from "./types.ts";
 
 /**

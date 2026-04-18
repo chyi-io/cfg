@@ -29,21 +29,32 @@ Deno.test("connection.open + connection.info + connection.close", async () => {
 
 Deno.test("workmode.set is RMW-preserving (mock level)", async () => {
   const d = new Dispatcher(8);
-  await d.dispatch("connection.open", { driver: CHAFON, ip: "1.2.3.4", port: 1 }, "t1");
+  await d.dispatch("connection.open", {
+    driver: CHAFON,
+    ip: "1.2.3.4",
+    port: 1,
+  }, "t1");
 
   const setRes = await d.dispatch("workmode.set", { workMode: 2 }, "t2");
   assertEquals(setRes.ok, true);
 
   const getRes = await d.dispatch("workmode.get", {}, "t3");
   assertEquals(getRes.ok, true);
-  assertEquals((getRes as { ok: true; data: { workMode: number } }).data.workMode, 2);
+  assertEquals(
+    (getRes as { ok: true; data: { workMode: number } }).data.workMode,
+    2,
+  );
 
   await d.shutdown();
 });
 
 Deno.test("whitelist round-trip via hex strings", async () => {
   const d = new Dispatcher(8);
-  await d.dispatch("connection.open", { driver: CHAFON, ip: "1.2.3.4", port: 1 }, "t1");
+  await d.dispatch("connection.open", {
+    driver: CHAFON,
+    ip: "1.2.3.4",
+    port: 1,
+  }, "t1");
 
   const setRes = await d.dispatch(
     "whitelist.set",
