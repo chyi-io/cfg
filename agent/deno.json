@@ -1,5 +1,5 @@
 {
-  "version": "0.1.6",
+  "version": "0.1.7",
   "tasks": {
     "dev": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi main.ts run",
     "dev:watch": "deno run --allow-net --allow-env --allow-read --allow-write --allow-ffi --allow-run --unstable-ffi --watch main.ts run",
