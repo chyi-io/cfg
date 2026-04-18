@@ -90,12 +90,16 @@ git push                               # Deno Deploy rebuilds + redeploys the cl
 # 2. Build the agent binary locally.
 deno task agent:compile                # produces dist/chyi-cfg-agent
 
-# 3. Publish a GitHub Release with the binary named for the installer URL.
+# 3. Rename to the filename the installer URL expects, then publish a Release.
 #    routes/dist/[file].ts redirects `/dist/chyi-cfg-agent-<ver>-x86_64-linux`
-#    to `releases/download/v<ver>/chyi-cfg-agent-<ver>-x86_64-linux`.
+#    to `releases/download/v<ver>/chyi-cfg-agent-<ver>-x86_64-linux` — the
+#    uploaded asset's literal filename MUST match the URL suffix (gh's `#label`
+#    syntax only sets a display label, not the download filename).
+cp dist/chyi-cfg-agent dist/chyi-cfg-agent-0.1.6-x86_64-linux
 gh release create v0.1.6 \
-  "dist/chyi-cfg-agent#chyi-cfg-agent-0.1.6-x86_64-linux" \
+  dist/chyi-cfg-agent-0.1.6-x86_64-linux \
   --title "v0.1.6" --generate-notes
+rm dist/chyi-cfg-agent-0.1.6-x86_64-linux
 ```
 
 After step 3, every host running `chyi-cfg-agent update` (or re-running the
